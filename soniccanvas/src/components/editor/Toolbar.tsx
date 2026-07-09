@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronLeft, Play, Pause, Square, Download,
-  Save, Undo, Redo, Music2, Layers, Sliders
+  Save, Undo, Redo, Music2, Layers, Sliders, LayoutTemplate
 } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { useProjectStore } from '@/store/projectStore'
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button'
 
 export function Toolbar() {
   const navigate = useNavigate()
-  const { isPlaying, setPlaying, setShowExportModal } = useEditorStore()
+  const { isPlaying, setPlaying, setShowExportModal, setShowTemplateGallery } = useEditorStore()
   const { openProject, saveProject, isDirty } = useProjectStore()
 
   return (
@@ -69,6 +69,15 @@ export function Toolbar() {
           <Sliders size={14} />
         </button>
       </div>
+
+      {/* Templates */}
+      <button
+        onClick={() => setShowTemplateGallery(true)}
+        className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors px-2 py-1.5 rounded hover:bg-white/5"
+      >
+        <LayoutTemplate size={13} />
+        <span className="hidden sm:inline">Templates</span>
+      </button>
 
       {/* Save */}
       <button
