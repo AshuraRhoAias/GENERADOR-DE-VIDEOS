@@ -1,6 +1,7 @@
-import { Film, Music, Type, Layers, Sparkles, Box } from 'lucide-react'
+import { Film, Music, Layers, Sparkles, Box, Type } from 'lucide-react'
 import { useProjectStore } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
+import { LyricsEditor } from './LyricsEditor'
 
 const tabs = [
   { id: 'layers', label: 'Capas' },
@@ -53,26 +54,7 @@ export function LayersPanel() {
           </div>
         )}
 
-        {leftPanelTab === 'lyrics' && (
-          <div className="p-3">
-            {openProject?.lyrics && openProject.lyrics.length > 0 ? (
-              <div className="flex flex-col gap-1">
-                {openProject.lyrics.map((line, i) => (
-                  <div key={i} className="text-xs text-white/50 bg-white/4 rounded-lg px-3 py-2">
-                    <span className="text-white/25 mr-2">{i + 1}.</span>
-                    {line.text}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Type size={24} className="text-white/15 mb-3" />
-                <p className="text-xs text-white/25">Sin letras</p>
-                <p className="text-xs text-white/15 mt-1">Importa un archivo .lrc o pega el texto</p>
-              </div>
-            )}
-          </div>
-        )}
+        {leftPanelTab === 'lyrics' && <LyricsEditor />}
 
         {leftPanelTab === 'assets' && (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4">

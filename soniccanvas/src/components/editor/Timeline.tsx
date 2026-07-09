@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useEditorStore } from '@/store/editorStore'
-import { useProjectStore } from '@/store/projectStore'
+import { audioAnalyzer } from '@/lib/audioAnalyzer'
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60)
@@ -9,35 +9,8 @@ function formatTime(sec: number) {
 }
 
 export function Timeline() {
-  const { isPlaying, currentTime, duration, setCurrentTime, setPlaying } = useEditorStore()
-  const { openProject } = useProjectStore()
+  const { isPlaying, currentTime, duration, setCurrentTime, audioReactive } = useEditorStore()
   const barRef = useRef<HTMLDivElement>(null)
-  const animRef = useRef<number>(0)
-  const startRef = useRef<number>(0)
-  const baseTimeRef = useRef<number>(0)
-
-  useEffect(() => {
-    if (isPlaying) {
-      startRef.current = performance.now()
-      baseTimeRef.current = currentTime
-
-      const tick = (now: number) => {
-        const elapsed = (now - startRef.current) / 1000
-        const next = baseTimeRef.current + elapsed
-        if (next >= duration && duration > 0) {
-          setCurrentTime(0)
-          setPlaying(false)
-          return
-        }
-        setCurrentTime(next)
-        animRef.current = requestAnimationFrame(tick)
-      }
-      animRef.current = requestAnimationFrame(tick)
-    } else {
-      cancelAnimationFrame(animRef.current)
-    }
-    return () => cancelAnimationFrame(animRef.current)
-  }, [isPlaying])
 
   const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!barRef.current || !duration) return
@@ -45,37 +18,47 @@ export function Timeline() {
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
     const newTime = ratio * duration
     setCurrentTime(newTime)
-    baseTimeRef.current = newTime
-    startRef.current = performance.now()
+    if (isPlaying) {
+      audioAnalyzer.play(newTime)
+    }
   }
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0
 
+  // Static waveform seed — stable across renders
+  const waveform = useMemo(() =>
+    Array.from({ length: 200 }, (_, i) =>
+      20 + Math.sin(i * 0.3) * 12 + Math.sin(i * 0.7) * 8 + Math.sin(i * 1.3) * 4
+    ),
+  [])
+
+  const beatScale = 1 + audioReactive.bass * 0.3
+
   return (
     <div className="h-16 bg-[#0e0e16] border-t border-white/8 flex flex-col shrink-0 select-none">
-      {/* Waveform area */}
       <div
         ref={barRef}
         className="flex-1 relative cursor-pointer group"
         onClick={handleBarClick}
       >
         {/* Grid lines */}
-        <div className="absolute inset-0 flex">
+        <div className="absolute inset-0 flex pointer-events-none">
           {Array.from({ length: 20 }).map((_, i) => (
             <div key={i} className="flex-1 border-r border-white/4 last:border-0" />
           ))}
         </div>
 
-        {/* Waveform placeholder */}
-        {openProject?.audio?.localPath && (
-          <div className="absolute inset-y-2 inset-x-0 flex items-center gap-px px-1">
-            {Array.from({ length: 200 }).map((_, i) => {
-              const h = 20 + Math.sin(i * 0.3) * 12 + Math.sin(i * 0.7) * 8 + Math.random() * 4
+        {/* Waveform */}
+        {duration > 0 && (
+          <div className="absolute inset-y-2 inset-x-0 flex items-center gap-px px-1 pointer-events-none">
+            {waveform.map((h, i) => {
+              const filled = (i / waveform.length) * 100 < progress
+              const scaledH = h * (filled ? beatScale : 1)
               return (
                 <div
                   key={i}
-                  className="flex-1 bg-violet-500/30 rounded-sm"
-                  style={{ height: `${h}px` }}
+                  className={`flex-1 rounded-sm transition-none ${filled ? 'bg-violet-500/60' : 'bg-white/10'}`}
+                  style={{ height: `${scaledH}px` }}
                 />
               )
             })}
@@ -96,13 +79,25 @@ export function Timeline() {
           <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-violet-400 rotate-45" />
         </div>
 
+        {/* Beat flash */}
+        {audioReactive.beat && (
+          <div className="absolute inset-0 bg-violet-500/5 pointer-events-none" />
+        )}
+
         {/* Time labels */}
-        <div className="absolute bottom-1 left-2 text-[10px] text-white/30 font-mono">
+        <div className="absolute bottom-1 left-2 text-[10px] text-white/30 font-mono pointer-events-none">
           {formatTime(currentTime)}
         </div>
-        <div className="absolute bottom-1 right-2 text-[10px] text-white/30 font-mono">
+        <div className="absolute bottom-1 right-2 text-[10px] text-white/30 font-mono pointer-events-none">
           {formatTime(duration)}
         </div>
+
+        {/* Play/Pause click shortcut hint */}
+        {!duration && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-[10px] text-white/15">Arrastra un audio al canvas para empezar</span>
+          </div>
+        )}
       </div>
     </div>
   )

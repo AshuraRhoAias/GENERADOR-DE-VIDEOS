@@ -6,12 +6,16 @@ import { PropertiesPanel } from '@/components/editor/PropertiesPanel'
 import { Timeline } from '@/components/editor/Timeline'
 import { Viewport } from '@/components/canvas/Viewport'
 import { ExportModal } from '@/components/editor/ExportModal'
+import { TemplateGallery } from '@/components/editor/TemplateGallery'
 import { useProjectStore } from '@/store/projectStore'
+import { useAudioReactive } from '@/hooks/useAudioReactive'
 
 export function Editor() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { openProject, openProjectById } = useProjectStore()
+
+  useAudioReactive()
 
   useEffect(() => {
     if (id && (!openProject || openProject.id !== id)) {
@@ -70,6 +74,7 @@ export function Editor() {
       </div>
 
       <ExportModal />
+      <TemplateGallery />
     </div>
   )
 }
