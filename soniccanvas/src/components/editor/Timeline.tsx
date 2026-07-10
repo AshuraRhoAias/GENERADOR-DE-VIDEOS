@@ -17,8 +17,8 @@ const SHAPE_LABELS: Record<ShapeBlock['type'], string> = {
   fire: '🔥 Fuego',
 }
 
-const MIN_BLOCK_DURATION = 0.5
-const DEFAULT_BLOCK_DURATION = 3
+const MIN_BLOCK_DURATION = 0.4
+const DEFAULT_BLOCK_BEATS = 4
 
 type DragMode =
   | { kind: 'create' }
@@ -34,6 +34,23 @@ export function Timeline() {
   const [draft, setDraft] = useState<{ anchor: number; start: number; end: number } | null>(null)
 
   const shapeTimeline = useMemo(() => openProject?.shapeTimeline ?? [], [openProject?.shapeTimeline])
+  const bpm = openProject?.bpm ?? 120
+  const beatDuration = 60 / bpm
+
+  const beatTimes = useMemo(() => {
+    if (!duration || beatDuration <= 0) return []
+    const times: number[] = []
+    const maxTicks = 4000
+    for (let t = 0, i = 0; t <= duration && i < maxTicks; t += beatDuration, i++) {
+      times.push(t)
+    }
+    return times
+  }, [duration, beatDuration])
+
+  const snapToBeat = (t: number) => {
+    if (beatDuration <= 0) return t
+    return Math.max(0, Math.min(duration, Math.round(t / beatDuration) * beatDuration))
+  }
 
   const timeFromX = (clientX: number) => {
     if (!trackRef.current || !duration) return 0
@@ -59,7 +76,8 @@ export function Timeline() {
 
   const handleShapesPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!duration) return
-    const t = timeFromX(e.clientX)
+    const raw = timeFromX(e.clientX)
+    const t = e.altKey ? raw : snapToBeat(raw)
     setDraft({ anchor: t, start: t, end: t })
     setDragMode({ kind: 'create' })
     setSelectedShapeBlockId(null)
@@ -85,28 +103,33 @@ export function Timeline() {
 
   const handleShapesPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragMode || !duration) return
-    const t = timeFromX(e.clientX)
+    const raw = timeFromX(e.clientX)
+    const snap = !e.altKey
 
     if (dragMode.kind === 'create') {
+      const t = snap ? snapToBeat(raw) : raw
       setDraft((d) => (d ? { anchor: d.anchor, start: Math.min(d.anchor, t), end: Math.max(d.anchor, t) } : d))
       return
     }
 
     if (dragMode.kind === 'move') {
       const len = dragMode.origEnd - dragMode.origStart
-      let newStart = dragMode.origStart + (t - dragMode.anchorTime)
+      let newStart = dragMode.origStart + (raw - dragMode.anchorTime)
+      if (snap) newStart = snapToBeat(newStart)
       newStart = Math.max(0, Math.min(duration - len, newStart))
       updateBlock(dragMode.blockId, { start: newStart, end: newStart + len })
       return
     }
 
     if (dragMode.kind === 'resize-left') {
-      const newStart = Math.max(0, Math.min(t, dragMode.origEnd - MIN_BLOCK_DURATION))
+      let newStart = snap ? snapToBeat(raw) : raw
+      newStart = Math.max(0, Math.min(newStart, dragMode.origEnd - MIN_BLOCK_DURATION))
       updateBlock(dragMode.blockId, { start: newStart })
       return
     }
 
-    const newEnd = Math.min(duration, Math.max(t, dragMode.origStart + MIN_BLOCK_DURATION))
+    let newEnd = snap ? snapToBeat(raw) : raw
+    newEnd = Math.min(duration, Math.max(newEnd, dragMode.origStart + MIN_BLOCK_DURATION))
     updateBlock(dragMode.blockId, { end: newEnd })
   }
 
@@ -115,7 +138,7 @@ export function Timeline() {
       const { start } = draft
       let { end } = draft
       if (end - start < MIN_BLOCK_DURATION) {
-        end = Math.min(duration, start + DEFAULT_BLOCK_DURATION)
+        end = Math.min(duration, start + DEFAULT_BLOCK_BEATS * beatDuration)
       }
       const newBlock: ShapeBlock = {
         id: 'shape_' + Date.now(),
@@ -150,18 +173,28 @@ export function Timeline() {
   return (
     <div className="h-24 bg-surface-1 border-t border-white/8 flex flex-col shrink-0 select-none">
       <div ref={trackRef} className="relative flex-1 flex flex-col">
+        {/* Beat grid — spans both rows, aligned to BPM */}
+        {duration > 0 && (
+          <div className="absolute inset-0 pointer-events-none z-0">
+            {beatTimes.map((t, i) => {
+              const isBar = i % 4 === 0
+              if (!isBar && beatTimes.length > 400) return null
+              return (
+                <div
+                  key={i}
+                  className={isBar ? 'absolute top-0 bottom-0 w-px bg-white/10' : 'absolute top-0 bottom-0 w-px bg-white/[0.04]'}
+                  style={{ left: `${(t / duration) * 100}%` }}
+                />
+              )
+            })}
+          </div>
+        )}
+
         {/* Waveform / scrubber row */}
         <div
           className="flex-1 relative cursor-pointer group"
           onClick={handleBarClick}
         >
-          {/* Grid lines */}
-          <div className="absolute inset-0 flex pointer-events-none">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div key={i} className="flex-1 border-r border-white/4 last:border-0" />
-            ))}
-          </div>
-
           {/* Waveform */}
           {duration > 0 && (
             <div className="absolute inset-y-2 inset-x-0 flex items-center gap-px px-1 pointer-events-none">
@@ -216,6 +249,21 @@ export function Timeline() {
           <span className="absolute top-1 left-1.5 text-[8px] text-white/20 uppercase tracking-wider pointer-events-none">
             Formas
           </span>
+
+          <div
+            className="absolute top-0.5 right-1.5 flex items-center gap-1 z-10"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <span className="text-[8px] text-white/20 uppercase tracking-wider">BPM</span>
+            <input
+              type="number"
+              min={40}
+              max={300}
+              value={bpm}
+              onChange={(e) => updateOpenProject({ bpm: Math.max(40, Math.min(300, Number(e.target.value) || 120)) })}
+              className="w-11 bg-white/5 border border-white/10 rounded px-1 py-0.5 text-[9px] text-white/60 text-center focus:border-violet-500 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
 
           {duration > 0 && shapeTimeline.map((block) => {
             const left = (block.start / duration) * 100
