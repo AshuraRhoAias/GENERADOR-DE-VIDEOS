@@ -52,7 +52,7 @@ export function Editor() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0f] overflow-hidden">
+    <div className="h-screen flex flex-col bg-[#0a0a0f] overflow-hidden select-none">
       <Toolbar />
 
       <div className="flex flex-1 overflow-hidden">

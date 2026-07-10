@@ -129,7 +129,7 @@ export function Toolbar() {
         className="shadow-[0_0_12px_rgba(124,58,237,0.3)]">
         <Zap size={12} />
         <span className="hidden sm:inline">Exportar</span>
-        <Download size={12} className="hidden sm:hidden" />
+        <Download size={12} className="sm:hidden" />
       </Button>
     </div>
   )

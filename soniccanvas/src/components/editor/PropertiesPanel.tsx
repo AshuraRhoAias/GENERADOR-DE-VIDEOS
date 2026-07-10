@@ -58,17 +58,22 @@ function Knob({ label, value, min = 0, max = 1, step = 0.01, unit = '', onChange
   )
 }
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ label, checked, onChange, disabled }: { label: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
-    <label className="flex items-center justify-between cursor-pointer group">
+    <div className="flex items-center justify-between group">
       <span className="text-xs text-white/50 group-hover:text-white/70 transition-colors">{label}</span>
-      <div
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative w-8 h-4 rounded-full transition-colors ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
+        className={`relative w-8 h-4 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111118] disabled:cursor-not-allowed ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
       >
-        <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : ''}`} />
-      </div>
-    </label>
+        <span className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : ''}`} />
+      </button>
+    </div>
   )
 }
 
@@ -341,8 +346,10 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Bloom</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Intensidad" value={0.8} min={0} max={3} onChange={() => {}} />
-              <Knob label="Radio" value={0.4} min={0} max={1} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Intensidad" value={0.8} min={0} max={3} onChange={() => {}} />
+                <Knob label="Radio" value={0.4} min={0} max={1} onChange={() => {}} />
+              </div>
             </section>
 
             {/* Glitch */}
@@ -351,9 +358,11 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Glitch</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Frecuencia" value={0.1} min={0} max={1} onChange={() => {}} />
-              <Knob label="Intensidad" value={0.3} min={0} max={1} onChange={() => {}} />
-              <Toggle label="Solo en kick" checked={true} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Frecuencia" value={0.1} min={0} max={1} onChange={() => {}} />
+                <Knob label="Intensidad" value={0.3} min={0} max={1} onChange={() => {}} />
+                <Toggle label="Solo en kick" checked={true} onChange={() => {}} disabled />
+              </div>
             </section>
 
             {/* Color grade */}
@@ -362,9 +371,11 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Color Grade</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Saturación" value={1.2} min={0} max={3} onChange={() => {}} />
-              <Knob label="Contraste" value={1.1} min={0} max={3} onChange={() => {}} />
-              <Knob label="Vignette" value={0.3} min={0} max={1} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Saturación" value={1.2} min={0} max={3} onChange={() => {}} />
+                <Knob label="Contraste" value={1.1} min={0} max={3} onChange={() => {}} />
+                <Knob label="Vignette" value={0.3} min={0} max={1} onChange={() => {}} />
+              </div>
             </section>
           </div>
         )}
