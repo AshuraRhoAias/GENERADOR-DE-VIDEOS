@@ -8,13 +8,23 @@ interface Props {
   config: HeroShapeConfig
 }
 
-const VERTEX_SHADER = /* glsl */ `
+// Shared by the solid mesh and the wireframe overlay so both ripple in lockstep.
+const DISPLACED_VERTEX_SHADER = /* glsl */ `
+  uniform float uTime;
+  uniform float uReact;
   varying vec3 vNormal;
   varying vec3 vPos;
+
   void main() {
     vNormal = normalize(normalMatrix * normal);
-    vPos = position;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+    float ripple =
+      sin(position.x * 6.0 + position.y * 4.0 + uTime * 3.2) * 0.045 +
+      sin(position.y * 9.0 - position.z * 5.0 + uTime * 5.1) * 0.03;
+    vec3 displaced = position + normal * ripple * uReact;
+
+    vPos = displaced;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
   }
 `
 
@@ -37,6 +47,15 @@ const FRAGMENT_SHADER = /* glsl */ `
     color += base * uReact * 0.5;
 
     gl_FragColor = vec4(color, 1.0);
+  }
+`
+
+const WIRE_FRAGMENT_SHADER = /* glsl */ `
+  uniform vec3 uWireColor;
+  uniform float uReact;
+
+  void main() {
+    gl_FragColor = vec4(uWireColor, 0.16 + uReact * 0.55);
   }
 `
 
@@ -105,6 +124,7 @@ function buildGeometry(type: HeroShapeConfig['type'], knotP: number, knotQ: numb
 export function HeroShape({ config }: Props) {
   const groupRef = useRef<THREE.Group>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
+  const wireMatRef = useRef<THREE.ShaderMaterial>(null)
   const { audioReactive } = useEditorStore()
 
   const uniforms = useMemo(
@@ -115,6 +135,15 @@ export function HeroShape({ config }: Props) {
       uReact: { value: 0 },
     }),
     [config.colorA, config.colorB]
+  )
+
+  const wireUniforms = useMemo(
+    () => ({
+      uWireColor: { value: new THREE.Color(config.wireframeColor) },
+      uTime: { value: 0 },
+      uReact: { value: 0 },
+    }),
+    [config.wireframeColor]
   )
 
   const geometry = useMemo(
@@ -136,6 +165,12 @@ export function HeroShape({ config }: Props) {
       )
     }
 
+    // Mirror onto the wireframe overlay so both surfaces ripple in lockstep.
+    if (wireMatRef.current && matRef.current) {
+      wireMatRef.current.uniforms.uTime.value = matRef.current.uniforms.uTime.value
+      wireMatRef.current.uniforms.uReact.value = matRef.current.uniforms.uReact.value
+    }
+
     if (groupRef.current) {
       const isFlatShape = config.type === 'heart'
       const spin = config.type === 'fire' ? 0.05 + reactValue * 0.2 : 0.15 + reactValue * 0.6
@@ -155,16 +190,18 @@ export function HeroShape({ config }: Props) {
         <shaderMaterial
           ref={matRef}
           uniforms={uniforms}
-          vertexShader={VERTEX_SHADER}
+          vertexShader={DISPLACED_VERTEX_SHADER}
           fragmentShader={FRAGMENT_SHADER}
         />
       </mesh>
       <mesh geometry={geometry} scale={1.015}>
-        <meshBasicMaterial
-          color={config.wireframeColor}
+        <shaderMaterial
+          ref={wireMatRef}
+          uniforms={wireUniforms}
+          vertexShader={DISPLACED_VERTEX_SHADER}
+          fragmentShader={WIRE_FRAGMENT_SHADER}
           wireframe
           transparent
-          opacity={0.18}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
