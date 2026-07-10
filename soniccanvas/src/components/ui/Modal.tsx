@@ -22,7 +22,7 @@ export function Modal({ open, onClose, title, children, width = 'max-w-md' }: Mo
         >
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
           <motion.div
-            className={`relative z-10 w-full ${width} mx-4 bg-[#16161f] border border-white/10 rounded-2xl shadow-2xl`}
+            className={`relative z-10 w-full ${width} mx-4 bg-[#16161f] border border-white/10 rounded-2xl shadow-2xl max-h-[90vh] overflow-x-hidden overflow-y-auto`}
             initial={{ scale: 0.94, y: 12 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.94, y: 12 }}

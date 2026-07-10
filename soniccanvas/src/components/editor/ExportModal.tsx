@@ -69,7 +69,7 @@ export function ExportModal() {
 
   return (
     <Modal open={showExportModal} onClose={handleClose} title="">
-      <div className="flex flex-col gap-0 -m-6">
+      <div className="flex flex-col gap-0 -m-5">
         {/* Header gradient */}
         <div className="bg-gradient-to-br from-violet-900/60 to-indigo-900/40 border-b border-white/8 p-5 rounded-t-2xl">
           <div className="flex items-center gap-3 mb-1">
