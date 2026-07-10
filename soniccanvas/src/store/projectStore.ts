@@ -36,6 +36,7 @@ const defaultProject = (id: string, title: string): ProjectData => ({
   },
   particles: { enabled: false, count: 300, reactTo: 'treble', color: '#ffffff', size: 0.05 },
   heroShape: { ...DEFAULT_HERO_SHAPE },
+  shapeTimeline: [],
   tracks: [],
 })
 

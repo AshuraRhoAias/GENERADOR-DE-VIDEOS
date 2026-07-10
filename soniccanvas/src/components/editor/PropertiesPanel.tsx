@@ -1,6 +1,13 @@
 import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
-import { Palette, Zap, Sparkles, Type, Orbit, type LucideIcon } from 'lucide-react'
+import { Palette, Zap, Sparkles, Type, Orbit, Clock, Trash2, type LucideIcon } from 'lucide-react'
+import type { HeroShapeConfig, ShapeBlock } from '@/types/project'
+
+function formatBlockTime(sec: number) {
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
 
 const tabs = [
   { id: 'properties', label: 'Props' },
@@ -99,9 +106,65 @@ function SegmentedControl<T extends string>({ options, value, onChange }: {
   )
 }
 
+type ShapeFieldsValue = Omit<HeroShapeConfig, 'enabled'>
+
+function ShapeFields({ value, onChange }: {
+  value: ShapeFieldsValue
+  onChange: (patch: Partial<ShapeFieldsValue>) => void
+}) {
+  return (
+    <>
+      <div>
+        <p className="text-xs text-white/35 mb-2">Figura</p>
+        <SegmentedControl
+          value={value.type}
+          options={[
+            { id: 'torusKnot', label: 'Nudo' },
+            { id: 'sphereKnot', label: 'Orbe' },
+            { id: 'heart', label: 'Corazón' },
+            { id: 'fire', label: 'Fuego' },
+          ]}
+          onChange={(type) => onChange({ type })}
+        />
+      </div>
+      <ColorSwatch color={value.colorA} onChange={(c) => onChange({ colorA: c })} />
+      <ColorSwatch color={value.colorB} onChange={(c) => onChange({ colorB: c })} />
+      <ColorSwatch color={value.wireframeColor} onChange={(c) => onChange({ wireframeColor: c })} />
+      {(value.type === 'torusKnot' || value.type === 'sphereKnot') && (
+        <>
+          <Knob
+            label="Complejidad (p)"
+            value={value.knotP}
+            min={2} max={5} step={1}
+            onChange={(v) => onChange({ knotP: v })}
+          />
+          <Knob
+            label="Complejidad (q)"
+            value={value.knotQ}
+            min={2} max={9} step={1}
+            onChange={(v) => onChange({ knotQ: v })}
+          />
+        </>
+      )}
+      <div>
+        <p className="text-xs text-white/35 mb-2">Reacciona a</p>
+        <SegmentedControl
+          value={value.reactTo}
+          options={[
+            { id: 'bass', label: 'Bass' },
+            { id: 'mid', label: 'Mid' },
+            { id: 'treble', label: 'Treble' },
+          ]}
+          onChange={(r) => onChange({ reactTo: r })}
+        />
+      </div>
+    </>
+  )
+}
+
 export function PropertiesPanel() {
   const { openProject, updateOpenProject } = useProjectStore()
-  const { rightPanelTab, setRightPanelTab, audioReactive } = useEditorStore()
+  const { rightPanelTab, setRightPanelTab, audioReactive, selectedShapeBlockId, setSelectedShapeBlockId } = useEditorStore()
 
   if (!openProject) return null
 
@@ -109,6 +172,21 @@ export function PropertiesPanel() {
   const ls = openProject.lyricStyle
   const pc = openProject.particles
   const hs = openProject.heroShape ?? DEFAULT_HERO_SHAPE
+  const shapeTimeline = openProject.shapeTimeline ?? []
+  const selectedBlock = shapeTimeline.find((b) => b.id === selectedShapeBlockId) ?? null
+
+  const updateSelectedBlock = (patch: Partial<ShapeBlock>) => {
+    if (!selectedBlock) return
+    updateOpenProject({
+      shapeTimeline: shapeTimeline.map((b) => (b.id === selectedBlock.id ? { ...b, ...patch } : b)),
+    })
+  }
+
+  const deleteSelectedBlock = () => {
+    if (!selectedBlock) return
+    updateOpenProject({ shapeTimeline: shapeTimeline.filter((b) => b.id !== selectedBlock.id) })
+    setSelectedShapeBlockId(null)
+  }
 
   return (
     <div className="flex flex-col h-full bg-surface-2 border-l border-white/8">
@@ -280,64 +358,39 @@ export function PropertiesPanel() {
                   onChange={(v) => updateOpenProject({ heroShape: { ...hs, enabled: v } })}
                 />
                 {hs.enabled && (
-                  <>
-                    <div>
-                      <p className="text-xs text-white/35 mb-2">Figura</p>
-                      <SegmentedControl
-                        value={hs.type}
-                        options={[
-                          { id: 'torusKnot', label: 'Nudo' },
-                          { id: 'sphereKnot', label: 'Orbe' },
-                          { id: 'heart', label: 'Corazón' },
-                          { id: 'fire', label: 'Fuego' },
-                        ]}
-                        onChange={(type) => updateOpenProject({ heroShape: { ...hs, type } })}
-                      />
-                    </div>
-                    <ColorSwatch
-                      color={hs.colorA}
-                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, colorA: c } })}
-                    />
-                    <ColorSwatch
-                      color={hs.colorB}
-                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, colorB: c } })}
-                    />
-                    <ColorSwatch
-                      color={hs.wireframeColor}
-                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, wireframeColor: c } })}
-                    />
-                    {(hs.type === 'torusKnot' || hs.type === 'sphereKnot') && (
-                      <>
-                        <Knob
-                          label="Complejidad (p)"
-                          value={hs.knotP}
-                          min={2} max={5} step={1}
-                          onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotP: v } })}
-                        />
-                        <Knob
-                          label="Complejidad (q)"
-                          value={hs.knotQ}
-                          min={2} max={9} step={1}
-                          onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotQ: v } })}
-                        />
-                      </>
-                    )}
-                    <div>
-                      <p className="text-xs text-white/35 mb-2">Reacciona a</p>
-                      <SegmentedControl
-                        value={hs.reactTo}
-                        options={[
-                          { id: 'bass', label: 'Bass' },
-                          { id: 'mid', label: 'Mid' },
-                          { id: 'treble', label: 'Treble' },
-                        ]}
-                        onChange={(r) => updateOpenProject({ heroShape: { ...hs, reactTo: r } })}
-                      />
-                    </div>
-                  </>
+                  <ShapeFields value={hs} onChange={(patch) => updateOpenProject({ heroShape: { ...hs, ...patch } })} />
+                )}
+                {shapeTimeline.length > 0 && (
+                  <p className="text-[10px] text-white/25 leading-relaxed">
+                    Esta figura se muestra salvo que el playhead esté sobre un bloque programado en el track de Formas.
+                  </p>
                 )}
               </div>
             </section>
+
+            {/* Selected shape block on the timeline */}
+            {selectedBlock && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <Clock size={11} className="text-white/30" />
+                    <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
+                      Bloque {formatBlockTime(selectedBlock.start)}–{formatBlockTime(selectedBlock.end)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={deleteSelectedBlock}
+                    className="p-1 rounded hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                    title="Eliminar bloque"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <ShapeFields value={selectedBlock} onChange={updateSelectedBlock} />
+                </div>
+              </section>
+            )}
           </div>
         )}
 

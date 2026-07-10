@@ -60,6 +60,20 @@ export interface HeroShapeConfig {
   reactTo: 'bass' | 'mid' | 'treble'
 }
 
+/** A HeroShape scheduled to appear only during [start, end) on the timeline. */
+export interface ShapeBlock {
+  id: string
+  start: number
+  end: number
+  type: HeroShapeConfig['type']
+  colorA: string
+  colorB: string
+  wireframeColor: string
+  knotP: number
+  knotQ: number
+  reactTo: HeroShapeConfig['reactTo']
+}
+
 export interface Track {
   id: string
   name: string
@@ -94,5 +108,6 @@ export interface ProjectData {
   lyricStyle: LyricStyle
   particles: ParticleConfig
   heroShape: HeroShapeConfig
+  shapeTimeline: ShapeBlock[]
   tracks: Track[]
 }

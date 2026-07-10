@@ -60,9 +60,16 @@ function CameraShake() {
 
 function Scene() {
   const { openProject } = useProjectStore()
+  const currentTime = useEditorStore((s) => s.currentTime)
   const bg = openProject?.background
   const bgColor = bg?.type === 'color' ? (bg.color ?? '#0a0a0f') : '#0a0a0f'
-  const heroShape = openProject?.heroShape ?? DEFAULT_HERO_SHAPE
+
+  const activeBlock = openProject?.shapeTimeline?.find(
+    (b) => currentTime >= b.start && currentTime < b.end
+  )
+  const heroShape = activeBlock
+    ? { enabled: true, ...activeBlock }
+    : (openProject?.heroShape ?? DEFAULT_HERO_SHAPE)
 
   return (
     <>
