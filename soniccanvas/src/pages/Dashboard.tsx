@@ -58,7 +58,7 @@ function ProjectCard({ project, index, onOpen, onDelete, onDuplicate }: {
     <motion.div layout
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.04 }}
-      className="group relative bg-[#111118] border border-white/8 rounded-2xl overflow-hidden hover:border-violet-500/40 hover:shadow-[0_0_30px_rgba(124,58,237,0.1)] transition-all duration-300 cursor-pointer"
+      className="hover-lift group relative bg-[#111118] border border-white/8 rounded-2xl overflow-hidden hover:border-violet-500/40 hover:shadow-[0_0_30px_rgba(124,58,237,0.15)] transition-all duration-300 cursor-pointer"
       onClick={onOpen}
     >
       <div className={'aspect-video bg-gradient-to-br ' + gradClass + ' relative overflow-hidden'}>
@@ -175,10 +175,10 @@ export function Dashboard() {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
         {/* Hero */}
-        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-900/40 via-indigo-900/20 to-[#111118] border border-violet-500/15 p-6 md:p-8">
+        <div className="animate-fade-in-up mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-900/40 via-indigo-900/20 to-[#111118] border border-violet-500/15 p-6 md:p-8">
           <div className="absolute inset-0 opacity-[0.03]"
             style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
-          <div className="absolute top-0 right-0 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="animate-float-slow absolute top-0 right-0 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative flex items-start justify-between gap-6 flex-wrap">
             <div>
               <p className="text-xs text-violet-400/80 font-medium mb-2">Bienvenido de vuelta, {user?.name?.split(' ')[0]} 👋</p>
@@ -190,7 +190,7 @@ export function Dashboard() {
                 className="hidden md:flex items-center gap-2 text-xs text-white/40 hover:text-white/70 px-3 py-2 rounded-xl border border-white/8 hover:border-white/15 transition-all">
                 <Wand2 size={13} /> Landing
               </button>
-              <Button variant="primary" onClick={() => setShowNewModal(true)} disabled={projects.length >= 1}>
+              <Button variant="primary" className="btn-shine" onClick={() => setShowNewModal(true)} disabled={projects.length >= 1}>
                 <Plus size={15} /> Nuevo
               </Button>
             </div>
@@ -210,7 +210,7 @@ export function Dashboard() {
         </div>
 
         {/* Upgrade */}
-        <div className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-amber-500/8 to-orange-500/6 border border-amber-500/15 rounded-2xl px-5 py-3.5">
+        <div className="animate-fade-in-up delay-100 mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-amber-500/8 to-orange-500/6 border border-amber-500/15 rounded-2xl px-5 py-3.5">
           <div className="flex items-center gap-3">
             <Crown size={15} className="text-amber-400 shrink-0" />
             <div>
@@ -224,7 +224,7 @@ export function Dashboard() {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="animate-fade-in-up delay-200 flex items-center gap-3 mb-5">
           <div className="relative flex-1 max-w-xs">
             <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
             <input type="text" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)}
@@ -248,7 +248,7 @@ export function Dashboard() {
             </div>
             <h3 className="text-lg font-bold text-white/50 mb-2">Sin proyectos todavía</h3>
             <p className="text-sm text-white/25 mb-6 max-w-xs">Crea tu primer video musical con partículas 3D, letras reactivas y exportación HD</p>
-            <Button variant="primary" onClick={() => setShowNewModal(true)}><Plus size={15} /> Crear primer proyecto</Button>
+            <Button variant="primary" className="btn-shine" onClick={() => setShowNewModal(true)}><Plus size={15} /> Crear primer proyecto</Button>
           </motion.div>
         )}
 
