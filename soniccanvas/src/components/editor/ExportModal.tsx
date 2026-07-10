@@ -236,7 +236,7 @@ export function ExportModal() {
           {!done && !exporting && (
             <div className="flex gap-2 justify-end pt-1 border-t border-white/6">
               <Button variant="ghost" onClick={handleClose}>Cancelar</Button>
-              <Button variant="primary" onClick={handleExport}>
+              <Button variant="primary" className="btn-shine" onClick={handleExport}>
                 <Download size={13} />
                 Exportar {resolution}
               </Button>

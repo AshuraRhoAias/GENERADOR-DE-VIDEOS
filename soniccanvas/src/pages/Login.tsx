@@ -32,7 +32,7 @@ export function Login() {
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[120px]" />
+        <div className="animate-float-slow absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[120px]" />
       </div>
 
       <motion.div
@@ -78,7 +78,7 @@ export function Login() {
               </p>
             )}
 
-            <Button type="submit" variant="primary" size="lg" loading={loading} className="mt-1 w-full">
+            <Button type="submit" variant="primary" size="lg" loading={loading} className="btn-shine mt-1 w-full">
               {!loading && <Zap size={16} />}
               Iniciar sesión
             </Button>
