@@ -51,7 +51,7 @@ export interface ParticleConfig {
 
 export interface HeroShapeConfig {
   enabled: boolean
-  type: 'torusKnot' | 'sphereKnot'
+  type: 'torusKnot' | 'sphereKnot' | 'heart' | 'fire'
   colorA: string
   colorB: string
   wireframeColor: string

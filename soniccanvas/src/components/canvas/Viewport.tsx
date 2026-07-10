@@ -78,7 +78,15 @@ function Scene() {
       {heroShape.enabled && <HeroShape config={heroShape} />}
 
       <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
-      <OrbitControls makeDefault enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.2} />
+      <OrbitControls
+        makeDefault
+        enablePan={false}
+        enableZoom
+        minDistance={3}
+        maxDistance={14}
+        autoRotate
+        autoRotateSpeed={0.2}
+      />
       <CameraShake />
 
       {heroShape.enabled && (
@@ -130,7 +138,7 @@ export function Viewport() {
         <div className="relative w-full max-w-4xl" style={{ aspectRatio: '16/9' }}>
           <div className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10 shadow-2xl">
             <Canvas
-              camera={{ position: [0, 0, 5], fov: 60 }}
+              camera={{ position: [0, 0, 7], fov: 55 }}
               gl={{ antialias: true, alpha: false }}
               dpr={[1, 2]}
             >

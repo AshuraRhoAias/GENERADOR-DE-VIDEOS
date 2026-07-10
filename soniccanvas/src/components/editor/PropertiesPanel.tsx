@@ -288,6 +288,8 @@ export function PropertiesPanel() {
                         options={[
                           { id: 'torusKnot', label: 'Nudo' },
                           { id: 'sphereKnot', label: 'Orbe' },
+                          { id: 'heart', label: 'Corazón' },
+                          { id: 'fire', label: 'Fuego' },
                         ]}
                         onChange={(type) => updateOpenProject({ heroShape: { ...hs, type } })}
                       />
@@ -304,18 +306,22 @@ export function PropertiesPanel() {
                       color={hs.wireframeColor}
                       onChange={(c) => updateOpenProject({ heroShape: { ...hs, wireframeColor: c } })}
                     />
-                    <Knob
-                      label="Complejidad (p)"
-                      value={hs.knotP}
-                      min={2} max={5} step={1}
-                      onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotP: v } })}
-                    />
-                    <Knob
-                      label="Complejidad (q)"
-                      value={hs.knotQ}
-                      min={2} max={9} step={1}
-                      onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotQ: v } })}
-                    />
+                    {(hs.type === 'torusKnot' || hs.type === 'sphereKnot') && (
+                      <>
+                        <Knob
+                          label="Complejidad (p)"
+                          value={hs.knotP}
+                          min={2} max={5} step={1}
+                          onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotP: v } })}
+                        />
+                        <Knob
+                          label="Complejidad (q)"
+                          value={hs.knotQ}
+                          min={2} max={9} step={1}
+                          onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotQ: v } })}
+                        />
+                      </>
+                    )}
                     <div>
                       <p className="text-xs text-white/35 mb-2">Reacciona a</p>
                       <SegmentedControl
