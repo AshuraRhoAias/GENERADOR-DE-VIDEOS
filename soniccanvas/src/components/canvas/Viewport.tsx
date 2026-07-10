@@ -1,6 +1,6 @@
 import { Suspense, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Environment, Stars } from '@react-three/drei'
+import { OrbitControls, Stars } from '@react-three/drei'
 import { Upload, Music } from 'lucide-react'
 import * as THREE from 'three'
 import { useProjectStore } from '@/store/projectStore'
@@ -72,7 +72,7 @@ function Scene() {
         <ParticleSystem config={openProject.particles} />
       )}
 
-      <Environment preset="night" />
+      <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
       <OrbitControls makeDefault enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.2} />
       <CameraShake />
     </>
