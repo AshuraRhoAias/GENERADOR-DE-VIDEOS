@@ -8,7 +8,10 @@ interface Props {
   config: HeroShapeConfig
 }
 
-// Shared by the solid mesh and the wireframe overlay so both ripple in lockstep.
+// Shared by the solid mesh and the wireframe overlay so both pulse in lockstep.
+// The dominant term is a uniform expand/contract along each vertex normal —
+// so every polygon on the faceted surface visibly grows and shrinks with the
+// music — plus a small organic ripple layered on top for texture.
 const DISPLACED_VERTEX_SHADER = /* glsl */ `
   uniform float uTime;
   uniform float uReact;
@@ -18,10 +21,11 @@ const DISPLACED_VERTEX_SHADER = /* glsl */ `
   void main() {
     vNormal = normalize(normalMatrix * normal);
 
+    float breathe = uReact * 0.24;
     float ripple =
-      sin(position.x * 6.0 + position.y * 4.0 + uTime * 3.2) * 0.045 +
-      sin(position.y * 9.0 - position.z * 5.0 + uTime * 5.1) * 0.03;
-    vec3 displaced = position + normal * ripple * uReact;
+      (sin(position.x * 6.0 + position.y * 4.0 + uTime * 3.2) * 0.03 +
+       sin(position.y * 9.0 - position.z * 5.0 + uTime * 5.1) * 0.02) * uReact;
+    vec3 displaced = position + normal * (breathe + ripple);
 
     vPos = displaced;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
@@ -158,11 +162,11 @@ export function HeroShape({ config }: Props) {
 
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta
-      matRef.current.uniforms.uReact.value = THREE.MathUtils.lerp(
-        matRef.current.uniforms.uReact.value,
-        reactValue,
-        0.15
-      )
+      // Fast attack, slower release — the shape snaps outward on a hit and
+      // eases back down, instead of smoothly averaging out the beat.
+      const current = matRef.current.uniforms.uReact.value
+      const attackRate = reactValue > current ? 0.5 : 0.08
+      matRef.current.uniforms.uReact.value = THREE.MathUtils.lerp(current, reactValue, attackRate)
     }
 
     // Mirror onto the wireframe overlay so both surfaces ripple in lockstep.
