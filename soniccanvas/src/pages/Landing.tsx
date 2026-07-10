@@ -178,7 +178,7 @@ export function Landing() {
   }, [])
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0a0f] overflow-hidden flex flex-col">
+    <div className="relative w-full h-screen bg-surface-0 overflow-hidden flex flex-col">
       {/* Navbar */}
       <nav className="relative z-20 flex items-center justify-between px-8 py-5 shrink-0 animate-fade-in">
         <div className="flex items-center gap-3">
@@ -264,9 +264,9 @@ export function Landing() {
         {/* Right — App preview with canvas */}
         <div className="hidden lg:flex flex-1 items-center justify-center px-8 py-6 min-w-0">
           {/* Fake app window */}
-          <div className="animate-scale-in delay-200 hover-lift w-full max-w-2xl xl:max-w-3xl rounded-2xl overflow-hidden border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] bg-[#0e0e16]">
+          <div className="animate-scale-in delay-200 hover-lift w-full max-w-2xl xl:max-w-3xl rounded-2xl overflow-hidden border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] bg-surface-1">
             {/* Window titlebar */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 bg-[#111118]">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 bg-surface-2">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
                 <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
@@ -292,7 +292,7 @@ export function Landing() {
             </div>
 
             {/* Fake timeline */}
-            <div className="px-4 py-2.5 border-t border-white/8 bg-[#0e0e16]">
+            <div className="px-4 py-2.5 border-t border-white/8 bg-surface-1">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-violet-600/30 border border-violet-500/30 flex items-center justify-center shrink-0">
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -310,7 +310,7 @@ export function Landing() {
       </div>
 
       {/* Bottom strip — features */}
-      <div className="animate-fade-in-up delay-500 relative z-10 border-t border-white/6 bg-[#0e0e16]/80 backdrop-blur-sm shrink-0">
+      <div className="animate-fade-in-up delay-500 relative z-10 border-t border-white/6 bg-surface-1/80 backdrop-blur-sm shrink-0">
         <div className="flex items-center justify-center gap-0 divide-x divide-white/8">
           {[
             { icon: '🎵', title: 'Audio reactivo', desc: 'FFT en tiempo real' },

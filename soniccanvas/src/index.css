@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  /* Surface elevation scale — replaces scattered near-black hex literals */
+  --color-surface-0: #0a0a0f; /* page background */
+  --color-surface-1: #0e0e16; /* raised bars: toolbar, timeline, window chrome */
+  --color-surface-2: #111118; /* cards, panels */
+  --color-surface-3: #16161f; /* modals */
+  --color-surface-4: #1a1a24; /* popovers, dropdown menus */
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -12,7 +21,7 @@
   }
 
   body {
-    background: #0a0a0f;
+    background: var(--color-surface-0);
     color: #f0f0f8;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;

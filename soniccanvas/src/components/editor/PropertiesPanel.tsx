@@ -69,7 +69,7 @@ function Toggle({ label, checked, onChange, disabled }: { label: string; checked
         aria-label={label}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative w-8 h-4 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111118] disabled:cursor-not-allowed ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
+        className={`relative w-8 h-4 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-2 disabled:cursor-not-allowed ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
       >
         <span className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : ''}`} />
       </button>
@@ -110,7 +110,7 @@ export function PropertiesPanel() {
   const pc = openProject.particles
 
   return (
-    <div className="flex flex-col h-full bg-[#111118] border-l border-white/8">
+    <div className="flex flex-col h-full bg-surface-2 border-l border-white/8">
       {/* Tabs */}
       <div className="flex border-b border-white/8 shrink-0">
         {tabs.map((t) => (

@@ -18,7 +18,7 @@ export function Toolbar() {
   }
 
   return (
-    <div className="h-11 bg-[#0e0e16] border-b border-white/6 flex items-center px-3 gap-2 shrink-0">
+    <div className="h-11 bg-surface-1 border-b border-white/6 flex items-center px-3 gap-2 shrink-0">
       {/* Back */}
       <button
         onClick={() => navigate('/dashboard')}

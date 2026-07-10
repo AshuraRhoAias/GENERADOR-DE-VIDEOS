@@ -111,7 +111,7 @@ export function Viewport() {
 
   return (
     <div
-      className="relative flex-1 bg-[#0a0a0f] overflow-hidden"
+      className="relative flex-1 bg-surface-0 overflow-hidden"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >

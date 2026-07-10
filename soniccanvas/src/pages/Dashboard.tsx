@@ -58,7 +58,7 @@ function ProjectCard({ project, index, onOpen, onDelete, onDuplicate }: {
     <motion.div layout
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.04 }}
-      className="hover-lift group relative bg-[#111118] border border-white/8 rounded-2xl overflow-hidden hover:border-violet-500/40 hover:shadow-[0_0_30px_rgba(124,58,237,0.15)] transition-all duration-300 cursor-pointer"
+      className="hover-lift group relative bg-surface-2 border border-white/8 rounded-2xl overflow-hidden hover:border-violet-500/40 hover:shadow-[0_0_30px_rgba(124,58,237,0.15)] transition-all duration-300 cursor-pointer"
       onClick={onOpen}
     >
       <div className={'aspect-video bg-gradient-to-br ' + gradClass + ' relative overflow-hidden'}>
@@ -103,7 +103,7 @@ function ProjectCard({ project, index, onOpen, onDelete, onDuplicate }: {
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <motion.div className="absolute right-0 top-8 z-20 bg-[#1a1a24] border border-white/10 rounded-xl shadow-2xl py-1 w-40"
+                <motion.div className="absolute right-0 top-8 z-20 bg-surface-4 border border-white/10 rounded-xl shadow-2xl py-1 w-40"
                   initial={{ opacity: 0, scale: 0.95, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -4 }} transition={{ duration: 0.1 }}>
                   <button onClick={() => { onDuplicate(); setMenuOpen(false) }}
@@ -149,8 +149,8 @@ export function Dashboard() {
   const handleOpen = (id: string) => { openProjectById(id); navigate('/editor/' + id) }
 
   return (
-    <div className="min-h-screen bg-[#08080f] flex flex-col">
-      <header className="h-14 border-b border-white/6 flex items-center justify-between px-6 shrink-0 sticky top-0 z-20 bg-[#08080f]/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-surface-0 flex flex-col">
+      <header className="h-14 border-b border-white/6 flex items-center justify-between px-6 shrink-0 sticky top-0 z-20 bg-surface-0/95 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shadow-[0_0_12px_rgba(124,58,237,0.5)]">
             <Music2 size={14} className="text-white" />
@@ -175,7 +175,7 @@ export function Dashboard() {
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
         {/* Hero */}
-        <div className="animate-fade-in-up mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-900/40 via-indigo-900/20 to-[#111118] border border-violet-500/15 p-6 md:p-8">
+        <div className="animate-fade-in-up mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-900/40 via-indigo-900/20 to-surface-2 border border-violet-500/15 p-6 md:p-8">
           <div className="absolute inset-0 opacity-[0.03]"
             style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
           <div className="animate-float-slow absolute top-0 right-0 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -272,7 +272,7 @@ export function Dashboard() {
                     onDuplicate={() => duplicateProject(p.id)} />
                 ) : (
                   <motion.div key={p.id} layout initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                    className="group flex items-center gap-4 bg-[#111118] border border-white/6 rounded-xl px-4 py-3 hover:border-violet-500/30 transition-all cursor-pointer"
+                    className="hover-lift group flex items-center gap-4 bg-surface-2 border border-white/6 rounded-xl px-4 py-3 hover:border-violet-500/30 transition-all cursor-pointer"
                     onClick={() => handleOpen(p.id)}>
                     <div className={'w-12 h-8 rounded-lg bg-gradient-to-br shrink-0 ' + GRADIENT_THUMBS[i % GRADIENT_THUMBS.length]} />
                     <div className="flex-1 min-w-0">

@@ -35,7 +35,7 @@ export function Timeline() {
   const beatScale = 1 + audioReactive.bass * 0.3
 
   return (
-    <div className="h-16 bg-[#0e0e16] border-t border-white/8 flex flex-col shrink-0 select-none">
+    <div className="h-16 bg-surface-1 border-t border-white/8 flex flex-col shrink-0 select-none">
       <div
         ref={barRef}
         className="flex-1 relative cursor-pointer group"
