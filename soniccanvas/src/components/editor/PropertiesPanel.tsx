@@ -1,6 +1,6 @@
-import { useProjectStore } from '@/store/projectStore'
+import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
-import { Palette, Zap, Sparkles, Type, type LucideIcon } from 'lucide-react'
+import { Palette, Zap, Sparkles, Type, Orbit, type LucideIcon } from 'lucide-react'
 
 const tabs = [
   { id: 'properties', label: 'Props' },
@@ -108,6 +108,7 @@ export function PropertiesPanel() {
   const bg = openProject.background
   const ls = openProject.lyricStyle
   const pc = openProject.particles
+  const hs = openProject.heroShape ?? DEFAULT_HERO_SHAPE
 
   return (
     <div className="flex flex-col h-full bg-surface-2 border-l border-white/8">
@@ -262,6 +263,69 @@ export function PropertiesPanel() {
                           { id: 'treble', label: 'Treble' },
                         ]}
                         onChange={(r) => updateOpenProject({ particles: { ...pc, reactTo: r } })}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+
+            {/* Hero Shape 3D */}
+            <section>
+              <SectionHeader icon={Orbit} label="Forma 3D" />
+              <div className="flex flex-col gap-3">
+                <Toggle
+                  label="Activar"
+                  checked={hs.enabled}
+                  onChange={(v) => updateOpenProject({ heroShape: { ...hs, enabled: v } })}
+                />
+                {hs.enabled && (
+                  <>
+                    <div>
+                      <p className="text-xs text-white/35 mb-2">Figura</p>
+                      <SegmentedControl
+                        value={hs.type}
+                        options={[
+                          { id: 'torusKnot', label: 'Nudo' },
+                          { id: 'sphereKnot', label: 'Orbe' },
+                        ]}
+                        onChange={(type) => updateOpenProject({ heroShape: { ...hs, type } })}
+                      />
+                    </div>
+                    <ColorSwatch
+                      color={hs.colorA}
+                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, colorA: c } })}
+                    />
+                    <ColorSwatch
+                      color={hs.colorB}
+                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, colorB: c } })}
+                    />
+                    <ColorSwatch
+                      color={hs.wireframeColor}
+                      onChange={(c) => updateOpenProject({ heroShape: { ...hs, wireframeColor: c } })}
+                    />
+                    <Knob
+                      label="Complejidad (p)"
+                      value={hs.knotP}
+                      min={2} max={5} step={1}
+                      onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotP: v } })}
+                    />
+                    <Knob
+                      label="Complejidad (q)"
+                      value={hs.knotQ}
+                      min={2} max={9} step={1}
+                      onChange={(v) => updateOpenProject({ heroShape: { ...hs, knotQ: v } })}
+                    />
+                    <div>
+                      <p className="text-xs text-white/35 mb-2">Reacciona a</p>
+                      <SegmentedControl
+                        value={hs.reactTo}
+                        options={[
+                          { id: 'bass', label: 'Bass' },
+                          { id: 'mid', label: 'Mid' },
+                          { id: 'treble', label: 'Treble' },
+                        ]}
+                        onChange={(r) => updateOpenProject({ heroShape: { ...hs, reactTo: r } })}
                       />
                     </div>
                   </>

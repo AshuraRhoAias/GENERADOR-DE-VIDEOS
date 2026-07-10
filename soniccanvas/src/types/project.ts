@@ -49,6 +49,17 @@ export interface ParticleConfig {
   size: number
 }
 
+export interface HeroShapeConfig {
+  enabled: boolean
+  type: 'torusKnot' | 'sphereKnot'
+  colorA: string
+  colorB: string
+  wireframeColor: string
+  knotP: number
+  knotQ: number
+  reactTo: 'bass' | 'mid' | 'treble'
+}
+
 export interface Track {
   id: string
   name: string
@@ -82,5 +93,6 @@ export interface ProjectData {
   lyrics: LyricLine[]
   lyricStyle: LyricStyle
   particles: ParticleConfig
+  heroShape: HeroShapeConfig
   tracks: Track[]
 }

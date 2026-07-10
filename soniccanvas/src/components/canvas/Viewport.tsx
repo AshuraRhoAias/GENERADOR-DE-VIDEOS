@@ -1,12 +1,14 @@
 import { Suspense, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { Upload, Music } from 'lucide-react'
 import * as THREE from 'three'
-import { useProjectStore } from '@/store/projectStore'
+import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
 import { audioAnalyzer } from '@/lib/audioAnalyzer'
 import { ParticleSystem } from './ParticleSystem'
+import { HeroShape } from './HeroShape'
 import { LyricsOverlay } from './LyricsLayer'
 
 function ReactiveAmbientLight() {
@@ -60,6 +62,7 @@ function Scene() {
   const { openProject } = useProjectStore()
   const bg = openProject?.background
   const bgColor = bg?.type === 'color' ? (bg.color ?? '#0a0a0f') : '#0a0a0f'
+  const heroShape = openProject?.heroShape ?? DEFAULT_HERO_SHAPE
 
   return (
     <>
@@ -72,9 +75,17 @@ function Scene() {
         <ParticleSystem config={openProject.particles} />
       )}
 
+      {heroShape.enabled && <HeroShape config={heroShape} />}
+
       <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
       <OrbitControls makeDefault enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.2} />
       <CameraShake />
+
+      {heroShape.enabled && (
+        <EffectComposer>
+          <Bloom luminanceThreshold={0.15} luminanceSmoothing={0.9} intensity={1.4} mipmapBlur radius={0.8} />
+        </EffectComposer>
+      )}
     </>
   )
 }
