@@ -15,6 +15,7 @@ const SHAPE_LABELS: Record<ShapeBlock['type'], string> = {
   sphereKnot: '🔮 Orbe',
   heart: '💜 Corazón',
   fire: '🔥 Fuego',
+  gearHeart: '⚙️ Mecánico',
 }
 
 const MIN_BLOCK_DURATION = 0.4

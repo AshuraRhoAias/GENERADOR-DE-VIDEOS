@@ -1,6 +1,7 @@
 import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { useEditorStore } from '@/store/editorStore'
 import type { HeroShapeConfig } from '@/types/project'
 import { ParticleShape } from './ParticleShape'
@@ -70,15 +71,18 @@ function buildKnotGeometry(type: HeroShapeConfig['type'], p: number, q: number) 
     : new THREE.TorusKnotGeometry(1, 0.32, 220, 32, p, q)
 }
 
-function buildHeartGeometry() {
+function buildHeartShape() {
   const shape = new THREE.Shape()
   shape.moveTo(0, -1.1)
   shape.bezierCurveTo(-1.6, 0.2, -1.6, 1.35, -0.6, 1.35)
   shape.bezierCurveTo(-0.05, 1.35, 0, 0.85, 0, 0.85)
   shape.bezierCurveTo(0, 0.85, 0.05, 1.35, 0.6, 1.35)
   shape.bezierCurveTo(1.6, 1.35, 1.6, 0.2, 0, -1.1)
+  return shape
+}
 
-  const geometry = new THREE.ExtrudeGeometry(shape, {
+function buildHeartGeometry() {
+  const geometry = new THREE.ExtrudeGeometry(buildHeartShape(), {
     depth: 0.7,
     bevelEnabled: true,
     bevelThickness: 0.12,
@@ -88,6 +92,44 @@ function buildHeartGeometry() {
   })
   geometry.center()
   geometry.scale(0.75, 0.75, 0.75)
+  geometry.computeVertexNormals()
+  return geometry
+}
+
+// Heart backdrop with a handful of embedded gear rings — the solid-mesh
+// stand-in for the "corazón mecánico" look (full independent gear spin only
+// happens in particle style, where each gear's particles carry their own
+// rotation speed; here they're fused into one static mesh).
+function buildGearHeartGeometry() {
+  const heart = new THREE.ExtrudeGeometry(buildHeartShape(), {
+    depth: 0.7,
+    bevelEnabled: true,
+    bevelThickness: 0.12,
+    bevelSize: 0.12,
+    bevelSegments: 8,
+    curveSegments: 32,
+  })
+  heart.center()
+  heart.scale(0.64, 0.64, 0.64)
+
+  const gearSpecs: Array<{ radius: number; tube: number; pos: [number, number, number]; rot: [number, number, number] }> = [
+    { radius: 0.42, tube: 0.05, pos: [-0.28, 0.4, 0.42], rot: [0.15, 0.2, 0] },
+    { radius: 0.32, tube: 0.045, pos: [0.32, 0.46, 0.42], rot: [-0.1, -0.3, 0.2] },
+    { radius: 0.22, tube: 0.035, pos: [0.02, -0.05, 0.48], rot: [0.3, 0.05, -0.15] },
+    { radius: 0.15, tube: 0.03, pos: [-0.34, -0.4, 0.46], rot: [-0.2, 0.35, 0.1] },
+  ]
+  const gears = gearSpecs.map((spec) => {
+    // ExtrudeGeometry (the heart) comes out non-indexed, so every geometry
+    // merged with it needs to match or mergeGeometries rejects the batch.
+    const g = new THREE.TorusGeometry(spec.radius, spec.tube, 10, 24).toNonIndexed()
+    g.rotateX(spec.rot[0])
+    g.rotateY(spec.rot[1])
+    g.rotateZ(spec.rot[2])
+    g.translate(spec.pos[0], spec.pos[1], spec.pos[2])
+    return g
+  })
+
+  const geometry = mergeGeometries([heart, ...gears], false)
   geometry.computeVertexNormals()
   return geometry
 }
@@ -119,6 +161,8 @@ function buildGeometry(type: HeroShapeConfig['type'], knotP: number, knotQ: numb
   switch (type) {
     case 'heart':
       return buildHeartGeometry()
+    case 'gearHeart':
+      return buildGearHeartGeometry()
     case 'fire':
       return buildFireGeometry()
     default:
@@ -177,7 +221,7 @@ export function HeroShape({ config }: Props) {
     }
 
     if (groupRef.current) {
-      const isFlatShape = config.type === 'heart'
+      const isFlatShape = config.type === 'heart' || config.type === 'gearHeart'
       const spin = config.type === 'fire' ? 0.05 + reactValue * 0.2 : 0.15 + reactValue * 0.6
       groupRef.current.rotation.y += delta * spin
       if (config.type !== 'fire' && !isFlatShape) {

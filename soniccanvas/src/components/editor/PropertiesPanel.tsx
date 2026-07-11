@@ -84,18 +84,19 @@ function Toggle({ label, checked, onChange, disabled }: { label: string; checked
   )
 }
 
-function SegmentedControl<T extends string>({ options, value, onChange }: {
+function SegmentedControl<T extends string>({ options, value, onChange, wrap }: {
   options: { id: T; label: string }[]
   value: T
   onChange: (v: T) => void
+  wrap?: boolean
 }) {
   return (
-    <div className="flex gap-1 bg-white/4 rounded-lg p-0.5">
+    <div className={`flex gap-1 bg-white/4 rounded-lg p-0.5 ${wrap ? 'flex-wrap' : ''}`}>
       {options.map((o) => (
         <button
           key={o.id}
           onClick={() => onChange(o.id)}
-          className={`flex-1 py-1 rounded-md text-xs font-medium transition-all ${
+          className={`${wrap ? 'flex-1 min-w-[30%]' : 'flex-1'} py-1 rounded-md text-xs font-medium transition-all ${
             value === o.id ? 'bg-violet-600 text-white shadow' : 'text-white/35 hover:text-white/60'
           }`}
         >
@@ -118,11 +119,13 @@ function ShapeFields({ value, onChange }: {
         <p className="text-xs text-white/35 mb-2">Figura</p>
         <SegmentedControl
           value={value.type}
+          wrap
           options={[
             { id: 'torusKnot', label: 'Nudo' },
             { id: 'sphereKnot', label: 'Orbe' },
             { id: 'heart', label: 'Corazón' },
             { id: 'fire', label: 'Fuego' },
+            { id: 'gearHeart', label: 'Mecánico' },
           ]}
           onChange={(type) => onChange({ type })}
         />
