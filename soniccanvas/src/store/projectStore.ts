@@ -5,6 +5,7 @@ import type { ProjectMeta, ProjectData, HeroShapeConfig } from '@/types/project'
 export const DEFAULT_HERO_SHAPE: HeroShapeConfig = {
   enabled: false,
   type: 'torusKnot',
+  style: 'solid',
   colorA: '#a855f7',
   colorB: '#22d3ee',
   wireframeColor: '#67e8f9',

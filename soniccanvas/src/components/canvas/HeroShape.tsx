@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useEditorStore } from '@/store/editorStore'
 import type { HeroShapeConfig } from '@/types/project'
+import { ParticleShape } from './ParticleShape'
 
 interface Props {
   config: HeroShapeConfig
@@ -190,26 +191,32 @@ export function HeroShape({ config }: Props) {
 
   return (
     <group ref={groupRef}>
-      <mesh geometry={geometry}>
-        <shaderMaterial
-          ref={matRef}
-          uniforms={uniforms}
-          vertexShader={DISPLACED_VERTEX_SHADER}
-          fragmentShader={FRAGMENT_SHADER}
-        />
-      </mesh>
-      <mesh geometry={geometry} scale={1.015}>
-        <shaderMaterial
-          ref={wireMatRef}
-          uniforms={wireUniforms}
-          vertexShader={DISPLACED_VERTEX_SHADER}
-          fragmentShader={WIRE_FRAGMENT_SHADER}
-          wireframe
-          transparent
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
+      {config.style === 'particles' ? (
+        <ParticleShape config={config} sourceGeometry={geometry} />
+      ) : (
+        <>
+          <mesh geometry={geometry}>
+            <shaderMaterial
+              ref={matRef}
+              uniforms={uniforms}
+              vertexShader={DISPLACED_VERTEX_SHADER}
+              fragmentShader={FRAGMENT_SHADER}
+            />
+          </mesh>
+          <mesh geometry={geometry} scale={1.015}>
+            <shaderMaterial
+              ref={wireMatRef}
+              uniforms={wireUniforms}
+              vertexShader={DISPLACED_VERTEX_SHADER}
+              fragmentShader={WIRE_FRAGMENT_SHADER}
+              wireframe
+              transparent
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </mesh>
+        </>
+      )}
     </group>
   )
 }

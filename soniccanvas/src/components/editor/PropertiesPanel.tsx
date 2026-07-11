@@ -127,9 +127,22 @@ function ShapeFields({ value, onChange }: {
           onChange={(type) => onChange({ type })}
         />
       </div>
+      <div>
+        <p className="text-xs text-white/35 mb-2">Estilo</p>
+        <SegmentedControl
+          value={value.style}
+          options={[
+            { id: 'solid', label: 'Malla' },
+            { id: 'particles', label: 'Partículas' },
+          ]}
+          onChange={(style) => onChange({ style })}
+        />
+      </div>
       <ColorSwatch color={value.colorA} onChange={(c) => onChange({ colorA: c })} />
       <ColorSwatch color={value.colorB} onChange={(c) => onChange({ colorB: c })} />
-      <ColorSwatch color={value.wireframeColor} onChange={(c) => onChange({ wireframeColor: c })} />
+      {value.style === 'solid' && (
+        <ColorSwatch color={value.wireframeColor} onChange={(c) => onChange({ wireframeColor: c })} />
+      )}
       {(value.type === 'torusKnot' || value.type === 'sphereKnot') && (
         <>
           <Knob

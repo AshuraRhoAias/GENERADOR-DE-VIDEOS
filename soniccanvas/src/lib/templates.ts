@@ -34,6 +34,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -66,6 +67,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -98,6 +100,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -130,6 +133,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -162,6 +166,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -194,6 +199,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -226,6 +232,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: false,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -258,6 +265,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: true,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
@@ -290,6 +298,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: true,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#10b981',
         colorB: '#38bdf8',
         wireframeColor: '#5eead4',
@@ -322,6 +331,7 @@ export const TEMPLATES: Template[] = [
       heroShape: {
         enabled: true,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#f97316',
         colorB: '#ec4899',
         wireframeColor: '#fdba74',

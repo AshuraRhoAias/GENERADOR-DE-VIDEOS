@@ -52,6 +52,8 @@ export interface ParticleConfig {
 export interface HeroShapeConfig {
   enabled: boolean
   type: 'torusKnot' | 'sphereKnot' | 'heart' | 'fire'
+  /** 'solid' = deforming mesh + wireframe overlay. 'particles' = glowing particle cloud. */
+  style: 'solid' | 'particles'
   colorA: string
   colorB: string
   wireframeColor: string
@@ -66,6 +68,7 @@ export interface ShapeBlock {
   start: number
   end: number
   type: HeroShapeConfig['type']
+  style: HeroShapeConfig['style']
   colorA: string
   colorB: string
   wireframeColor: string

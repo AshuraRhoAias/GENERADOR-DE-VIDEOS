@@ -145,6 +145,7 @@ export function Timeline() {
         start,
         end,
         type: 'torusKnot',
+        style: 'solid',
         colorA: '#a855f7',
         colorB: '#22d3ee',
         wireframeColor: '#67e8f9',
