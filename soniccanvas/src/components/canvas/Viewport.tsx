@@ -98,7 +98,7 @@ function Scene() {
 
       {heroShape.enabled && (
         <EffectComposer>
-          <Bloom luminanceThreshold={0.15} luminanceSmoothing={0.9} intensity={1.4} mipmapBlur radius={0.8} />
+          <Bloom luminanceThreshold={0.4} luminanceSmoothing={0.6} intensity={1.1} mipmapBlur radius={0.6} />
         </EffectComposer>
       )}
     </>
