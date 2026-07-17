@@ -49,6 +49,34 @@ export interface ParticleConfig {
   size: number
 }
 
+export interface HeroShapeConfig {
+  enabled: boolean
+  type: 'torusKnot' | 'sphereKnot' | 'heart' | 'fire' | 'gearHeart'
+  /** 'solid' = deforming mesh + wireframe overlay. 'particles' = glowing particle cloud. */
+  style: 'solid' | 'particles'
+  colorA: string
+  colorB: string
+  wireframeColor: string
+  knotP: number
+  knotQ: number
+  reactTo: 'bass' | 'mid' | 'treble'
+}
+
+/** A HeroShape scheduled to appear only during [start, end) on the timeline. */
+export interface ShapeBlock {
+  id: string
+  start: number
+  end: number
+  type: HeroShapeConfig['type']
+  style: HeroShapeConfig['style']
+  colorA: string
+  colorB: string
+  wireframeColor: string
+  knotP: number
+  knotQ: number
+  reactTo: HeroShapeConfig['reactTo']
+}
+
 export interface Track {
   id: string
   name: string
@@ -82,5 +110,7 @@ export interface ProjectData {
   lyrics: LyricLine[]
   lyricStyle: LyricStyle
   particles: ParticleConfig
+  heroShape: HeroShapeConfig
+  shapeTimeline: ShapeBlock[]
   tracks: Track[]
 }

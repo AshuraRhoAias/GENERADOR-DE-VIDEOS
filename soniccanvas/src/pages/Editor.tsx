@@ -37,7 +37,7 @@ export function Editor() {
 
   if (!openProject) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0a0a0f]">
+      <div className="flex items-center justify-center h-screen bg-surface-0">
         <div className="text-center">
           <p className="text-white/30 text-sm mb-4">Proyecto no encontrado</p>
           <button
@@ -52,7 +52,7 @@ export function Editor() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0f] overflow-hidden">
+    <div className="h-screen flex flex-col bg-surface-0 overflow-hidden select-none">
       <Toolbar />
 
       <div className="flex flex-1 overflow-hidden">

@@ -87,7 +87,7 @@ export function LyricsEditor() {
           lines.map((line, i) => (
             <div key={i} className="bg-white/4 rounded-lg p-2 flex flex-col gap-1.5 group">
               <input
-                className="w-full bg-transparent text-xs text-white placeholder:text-white/20 border-none outline-none"
+                className="w-full bg-transparent text-xs text-white placeholder:text-white/20 border-none outline-none rounded focus:ring-1 focus:ring-violet-500/60 focus:bg-white/5"
                 placeholder="Texto de la línea..."
                 value={line.text}
                 onChange={(e) => updateLine(i, { text: e.target.value })}
@@ -95,14 +95,14 @@ export function LyricsEditor() {
               <div className="flex items-center gap-1.5">
                 <Clock size={10} className="text-white/20 shrink-0" />
                 <input
-                  className="w-14 bg-white/5 rounded px-1.5 py-0.5 text-[10px] font-mono text-white/50 text-center border-none outline-none"
+                  className="w-14 bg-white/5 rounded px-1.5 py-0.5 text-[10px] font-mono text-white/50 text-center border-none outline-none focus:ring-1 focus:ring-violet-500/60"
                   value={secToTime(line.start)}
                   onChange={(e) => updateLine(i, { start: timeToSec(e.target.value) })}
                   title="Inicio"
                 />
                 <span className="text-white/20 text-[10px]">→</span>
                 <input
-                  className="w-14 bg-white/5 rounded px-1.5 py-0.5 text-[10px] font-mono text-white/50 text-center border-none outline-none"
+                  className="w-14 bg-white/5 rounded px-1.5 py-0.5 text-[10px] font-mono text-white/50 text-center border-none outline-none focus:ring-1 focus:ring-violet-500/60"
                   value={secToTime(line.end)}
                   onChange={(e) => updateLine(i, { end: timeToSec(e.target.value) })}
                   title="Fin"

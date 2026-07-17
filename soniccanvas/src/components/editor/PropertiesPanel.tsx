@@ -1,6 +1,13 @@
-import { useProjectStore } from '@/store/projectStore'
+import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
-import { Palette, Zap, Sparkles, Type, type LucideIcon } from 'lucide-react'
+import { Palette, Zap, Sparkles, Type, Orbit, Clock, Trash2, type LucideIcon } from 'lucide-react'
+import type { HeroShapeConfig, ShapeBlock } from '@/types/project'
+
+function formatBlockTime(sec: number) {
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
 
 const tabs = [
   { id: 'properties', label: 'Props' },
@@ -58,32 +65,38 @@ function Knob({ label, value, min = 0, max = 1, step = 0.01, unit = '', onChange
   )
 }
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ label, checked, onChange, disabled }: { label: string; checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
-    <label className="flex items-center justify-between cursor-pointer group">
+    <div className="flex items-center justify-between group">
       <span className="text-xs text-white/50 group-hover:text-white/70 transition-colors">{label}</span>
-      <div
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative w-8 h-4 rounded-full transition-colors ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
+        className={`relative w-8 h-4 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-2 disabled:cursor-not-allowed ${checked ? 'bg-violet-600' : 'bg-white/10'}`}
       >
-        <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : ''}`} />
-      </div>
-    </label>
+        <span className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : ''}`} />
+      </button>
+    </div>
   )
 }
 
-function SegmentedControl<T extends string>({ options, value, onChange }: {
+function SegmentedControl<T extends string>({ options, value, onChange, wrap }: {
   options: { id: T; label: string }[]
   value: T
   onChange: (v: T) => void
+  wrap?: boolean
 }) {
   return (
-    <div className="flex gap-1 bg-white/4 rounded-lg p-0.5">
+    <div className={`flex gap-1 bg-white/4 rounded-lg p-0.5 ${wrap ? 'flex-wrap' : ''}`}>
       {options.map((o) => (
         <button
           key={o.id}
           onClick={() => onChange(o.id)}
-          className={`flex-1 py-1 rounded-md text-xs font-medium transition-all ${
+          className={`${wrap ? 'flex-1 min-w-[30%]' : 'flex-1'} py-1 rounded-md text-xs font-medium transition-all ${
             value === o.id ? 'bg-violet-600 text-white shadow' : 'text-white/35 hover:text-white/60'
           }`}
         >
@@ -94,18 +107,105 @@ function SegmentedControl<T extends string>({ options, value, onChange }: {
   )
 }
 
+type ShapeFieldsValue = Omit<HeroShapeConfig, 'enabled'>
+
+function ShapeFields({ value, onChange }: {
+  value: ShapeFieldsValue
+  onChange: (patch: Partial<ShapeFieldsValue>) => void
+}) {
+  return (
+    <>
+      <div>
+        <p className="text-xs text-white/35 mb-2">Figura</p>
+        <SegmentedControl
+          value={value.type}
+          wrap
+          options={[
+            { id: 'torusKnot', label: 'Nudo' },
+            { id: 'sphereKnot', label: 'Orbe' },
+            { id: 'heart', label: 'Corazón' },
+            { id: 'fire', label: 'Fuego' },
+            { id: 'gearHeart', label: 'Mecánico' },
+          ]}
+          onChange={(type) => onChange({ type })}
+        />
+      </div>
+      <div>
+        <p className="text-xs text-white/35 mb-2">Estilo</p>
+        <SegmentedControl
+          value={value.style}
+          options={[
+            { id: 'solid', label: 'Malla' },
+            { id: 'particles', label: 'Partículas' },
+          ]}
+          onChange={(style) => onChange({ style })}
+        />
+      </div>
+      <ColorSwatch color={value.colorA} onChange={(c) => onChange({ colorA: c })} />
+      <ColorSwatch color={value.colorB} onChange={(c) => onChange({ colorB: c })} />
+      {value.style === 'solid' && (
+        <ColorSwatch color={value.wireframeColor} onChange={(c) => onChange({ wireframeColor: c })} />
+      )}
+      {(value.type === 'torusKnot' || value.type === 'sphereKnot') && (
+        <>
+          <Knob
+            label="Complejidad (p)"
+            value={value.knotP}
+            min={2} max={5} step={1}
+            onChange={(v) => onChange({ knotP: v })}
+          />
+          <Knob
+            label="Complejidad (q)"
+            value={value.knotQ}
+            min={2} max={9} step={1}
+            onChange={(v) => onChange({ knotQ: v })}
+          />
+        </>
+      )}
+      <div>
+        <p className="text-xs text-white/35 mb-2">Reacciona a</p>
+        <SegmentedControl
+          value={value.reactTo}
+          options={[
+            { id: 'bass', label: 'Bass' },
+            { id: 'mid', label: 'Mid' },
+            { id: 'treble', label: 'Treble' },
+          ]}
+          onChange={(r) => onChange({ reactTo: r })}
+        />
+      </div>
+    </>
+  )
+}
+
 export function PropertiesPanel() {
   const { openProject, updateOpenProject } = useProjectStore()
-  const { rightPanelTab, setRightPanelTab, audioReactive } = useEditorStore()
+  const { rightPanelTab, setRightPanelTab, audioReactive, selectedShapeBlockId, setSelectedShapeBlockId } = useEditorStore()
 
   if (!openProject) return null
 
   const bg = openProject.background
   const ls = openProject.lyricStyle
   const pc = openProject.particles
+  const hs = openProject.heroShape ?? DEFAULT_HERO_SHAPE
+  const shapeTimeline = openProject.shapeTimeline ?? []
+  const selectedBlock = shapeTimeline.find((b) => b.id === selectedShapeBlockId) ?? null
+
+  const updateSelectedBlock = (patch: Partial<ShapeBlock>) => {
+    if (!selectedBlock) return
+    updateOpenProject({
+      shapeTimeline: shapeTimeline.map((b) => (b.id === selectedBlock.id ? { ...b, ...patch } : b)),
+    })
+  }
+
+  const deleteSelectedBlock = () => {
+    if (!selectedBlock) return
+    updateOpenProject({ shapeTimeline: shapeTimeline.filter((b) => b.id !== selectedBlock.id) })
+    setSelectedShapeBlockId(null)
+  }
 
   return (
-    <div className="flex flex-col h-full bg-[#111118] border-l border-white/8">
+    <div className="flex flex-col h-full bg-surface-2 border-l border-white/8">
       {/* Tabs */}
       <div className="flex border-b border-white/8 shrink-0">
         {tabs.map((t) => (
@@ -263,6 +363,50 @@ export function PropertiesPanel() {
                 )}
               </div>
             </section>
+
+            {/* Hero Shape 3D */}
+            <section>
+              <SectionHeader icon={Orbit} label="Forma 3D" />
+              <div className="flex flex-col gap-3">
+                <Toggle
+                  label="Activar"
+                  checked={hs.enabled}
+                  onChange={(v) => updateOpenProject({ heroShape: { ...hs, enabled: v } })}
+                />
+                {hs.enabled && (
+                  <ShapeFields value={hs} onChange={(patch) => updateOpenProject({ heroShape: { ...hs, ...patch } })} />
+                )}
+                {shapeTimeline.length > 0 && (
+                  <p className="text-[10px] text-white/25 leading-relaxed">
+                    Esta figura se muestra salvo que el playhead esté sobre un bloque programado en el track de Formas.
+                  </p>
+                )}
+              </div>
+            </section>
+
+            {/* Selected shape block on the timeline */}
+            {selectedBlock && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <Clock size={11} className="text-white/30" />
+                    <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
+                      Bloque {formatBlockTime(selectedBlock.start)}–{formatBlockTime(selectedBlock.end)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={deleteSelectedBlock}
+                    className="p-1 rounded hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                    title="Eliminar bloque"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <ShapeFields value={selectedBlock} onChange={updateSelectedBlock} />
+                </div>
+              </section>
+            )}
           </div>
         )}
 
@@ -341,8 +485,10 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Bloom</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Intensidad" value={0.8} min={0} max={3} onChange={() => {}} />
-              <Knob label="Radio" value={0.4} min={0} max={1} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Intensidad" value={0.8} min={0} max={3} onChange={() => {}} />
+                <Knob label="Radio" value={0.4} min={0} max={1} onChange={() => {}} />
+              </div>
             </section>
 
             {/* Glitch */}
@@ -351,9 +497,11 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Glitch</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Frecuencia" value={0.1} min={0} max={1} onChange={() => {}} />
-              <Knob label="Intensidad" value={0.3} min={0} max={1} onChange={() => {}} />
-              <Toggle label="Solo en kick" checked={true} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Frecuencia" value={0.1} min={0} max={1} onChange={() => {}} />
+                <Knob label="Intensidad" value={0.3} min={0} max={1} onChange={() => {}} />
+                <Toggle label="Solo en kick" checked={true} onChange={() => {}} disabled />
+              </div>
             </section>
 
             {/* Color grade */}
@@ -362,9 +510,11 @@ export function PropertiesPanel() {
                 <span className="text-xs font-medium text-white/60">Color Grade</span>
                 <span className="text-[10px] text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full">Sprint 4</span>
               </div>
-              <Knob label="Saturación" value={1.2} min={0} max={3} onChange={() => {}} />
-              <Knob label="Contraste" value={1.1} min={0} max={3} onChange={() => {}} />
-              <Knob label="Vignette" value={0.3} min={0} max={1} onChange={() => {}} />
+              <div className="flex flex-col gap-3 opacity-40 pointer-events-none" aria-disabled="true">
+                <Knob label="Saturación" value={1.2} min={0} max={3} onChange={() => {}} />
+                <Knob label="Contraste" value={1.1} min={0} max={3} onChange={() => {}} />
+                <Knob label="Vignette" value={0.3} min={0} max={1} onChange={() => {}} />
+              </div>
             </section>
           </div>
         )}

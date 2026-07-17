@@ -178,9 +178,9 @@ export function Landing() {
   }, [])
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0a0f] overflow-hidden flex flex-col">
+    <div className="relative w-full h-screen bg-surface-0 overflow-hidden flex flex-col">
       {/* Navbar */}
-      <nav className="relative z-20 flex items-center justify-between px-8 py-5 shrink-0">
+      <nav className="relative z-20 flex items-center justify-between px-8 py-5 shrink-0 animate-fade-in">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -210,28 +210,28 @@ export function Landing() {
         {/* Left — Copy */}
         <div className="flex flex-col justify-center px-12 lg:px-20 w-full lg:w-[45%] shrink-0">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-8 w-fit">
+          <div className="animate-fade-in-up inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-8 w-fit">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
             <span className="text-xs text-violet-300 font-medium">Exporta en 4K · Sin límites</span>
           </div>
 
-          <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] mb-6">
+          <h1 className="animate-fade-in-up delay-100 text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] mb-6">
             Crea videos<br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="animate-gradient-x bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
               que suenan
             </span>
             <br />tan bien como<br />
             se ven.
           </h1>
 
-          <p className="text-base text-white/45 leading-relaxed mb-10 max-w-md">
+          <p className="animate-fade-in-up delay-200 text-base text-white/45 leading-relaxed mb-10 max-w-md">
             Arrastra tu audio, elige un template y SonicCanvas genera un video sincronizado con el beat en segundos. Letras automáticas, partículas reactivas, efectos 3D.
           </p>
 
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="animate-fade-in-up delay-300 flex items-center gap-4 flex-wrap">
             <button
               onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')}
-              className="group relative inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-7 py-3.5 rounded-full text-sm transition-all shadow-[0_0_30px_rgba(124,58,237,0.4)] hover:shadow-[0_0_40px_rgba(124,58,237,0.6)]"
+              className="btn-shine group relative inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-7 py-3.5 rounded-full text-sm transition-all shadow-[0_0_30px_rgba(124,58,237,0.4)] hover:shadow-[0_0_40px_rgba(124,58,237,0.6)] hover:-translate-y-0.5"
             >
               <span>Crear video gratis</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="group-hover:translate-x-0.5 transition-transform">
@@ -247,7 +247,7 @@ export function Landing() {
           </div>
 
           {/* Social proof */}
-          <div className="flex items-center gap-6 mt-10 pt-8 border-t border-white/8">
+          <div className="animate-fade-in-up delay-400 flex items-center gap-6 mt-10 pt-8 border-t border-white/8">
             {[
               { value: '4K', label: 'Exportación' },
               { value: '7+', label: 'Templates' },
@@ -264,9 +264,9 @@ export function Landing() {
         {/* Right — App preview with canvas */}
         <div className="hidden lg:flex flex-1 items-center justify-center px-8 py-6 min-w-0">
           {/* Fake app window */}
-          <div className="w-full max-w-2xl xl:max-w-3xl rounded-2xl overflow-hidden border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] bg-[#0e0e16]">
+          <div className="animate-scale-in delay-200 hover-lift w-full max-w-2xl xl:max-w-3xl rounded-2xl overflow-hidden border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] bg-surface-1">
             {/* Window titlebar */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 bg-[#111118]">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 bg-surface-2">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
                 <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
@@ -292,7 +292,7 @@ export function Landing() {
             </div>
 
             {/* Fake timeline */}
-            <div className="px-4 py-2.5 border-t border-white/8 bg-[#0e0e16]">
+            <div className="px-4 py-2.5 border-t border-white/8 bg-surface-1">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-violet-600/30 border border-violet-500/30 flex items-center justify-center shrink-0">
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -310,7 +310,7 @@ export function Landing() {
       </div>
 
       {/* Bottom strip — features */}
-      <div className="relative z-10 border-t border-white/6 bg-[#0e0e16]/80 backdrop-blur-sm shrink-0">
+      <div className="animate-fade-in-up delay-500 relative z-10 border-t border-white/6 bg-surface-1/80 backdrop-blur-sm shrink-0">
         <div className="flex items-center justify-center gap-0 divide-x divide-white/8">
           {[
             { icon: '🎵', title: 'Audio reactivo', desc: 'FFT en tiempo real' },
@@ -318,7 +318,7 @@ export function Landing() {
             { icon: '📝', title: 'Letras sync', desc: 'Karaoke automático' },
             { icon: '🎬', title: 'Exporta 4K', desc: 'H.264 / H.265' },
           ].map(({ icon, title, desc }) => (
-            <div key={title} className="flex items-center gap-3 px-8 py-4">
+            <div key={title} className="flex items-center gap-3 px-8 py-4 transition-colors hover:bg-white/[0.03]">
               <span className="text-xl">{icon}</span>
               <div>
                 <div className="text-xs font-semibold text-white/70">{title}</div>
@@ -331,8 +331,8 @@ export function Landing() {
 
       {/* Background ambient glows */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/6 rounded-full blur-[100px]" />
+        <div className="animate-float-slow absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/8 rounded-full blur-[120px]" />
+        <div className="animate-float-slow absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/6 rounded-full blur-[100px]" style={{ animationDelay: '-4s' }} />
       </div>
     </div>
   )

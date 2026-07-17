@@ -29,10 +29,10 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-surface-0 flex items-center justify-center relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[120px]" />
+        <div className="animate-float-slow absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-900/20 rounded-full blur-[120px]" />
       </div>
 
       <motion.div
@@ -50,7 +50,7 @@ export function Login() {
         </div>
 
         {/* Card */}
-        <div className="bg-[#111118] border border-white/8 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-surface-2 border border-white/8 rounded-2xl p-8 shadow-2xl">
           <h1 className="text-xl font-semibold text-white mb-1">Bienvenido de vuelta</h1>
           <p className="text-sm text-white/40 mb-7">Ingresa tu cuenta para continuar</p>
 
@@ -78,7 +78,7 @@ export function Login() {
               </p>
             )}
 
-            <Button type="submit" variant="primary" size="lg" loading={loading} className="mt-1 w-full">
+            <Button type="submit" variant="primary" size="lg" loading={loading} className="btn-shine mt-1 w-full">
               {!loading && <Zap size={16} />}
               Iniciar sesión
             </Button>

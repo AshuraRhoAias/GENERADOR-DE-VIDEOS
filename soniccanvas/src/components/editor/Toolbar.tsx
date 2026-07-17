@@ -18,7 +18,7 @@ export function Toolbar() {
   }
 
   return (
-    <div className="h-11 bg-[#0e0e16] border-b border-white/6 flex items-center px-3 gap-2 shrink-0">
+    <div className="h-11 bg-surface-1 border-b border-white/6 flex items-center px-3 gap-2 shrink-0">
       {/* Back */}
       <button
         onClick={() => navigate('/dashboard')}
@@ -129,7 +129,7 @@ export function Toolbar() {
         className="shadow-[0_0_12px_rgba(124,58,237,0.3)]">
         <Zap size={12} />
         <span className="hidden sm:inline">Exportar</span>
-        <Download size={12} className="hidden sm:hidden" />
+        <Download size={12} className="sm:hidden" />
       </Button>
     </div>
   )

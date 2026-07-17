@@ -1,6 +1,18 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ProjectMeta, ProjectData } from '@/types/project'
+import type { ProjectMeta, ProjectData, HeroShapeConfig } from '@/types/project'
+
+export const DEFAULT_HERO_SHAPE: HeroShapeConfig = {
+  enabled: false,
+  type: 'torusKnot',
+  style: 'solid',
+  colorA: '#a855f7',
+  colorB: '#22d3ee',
+  wireframeColor: '#67e8f9',
+  knotP: 2,
+  knotQ: 5,
+  reactTo: 'bass',
+}
 
 const defaultProject = (id: string, title: string): ProjectData => ({
   version: '1.0',
@@ -24,6 +36,8 @@ const defaultProject = (id: string, title: string): ProjectData => ({
     translationSize: 32,
   },
   particles: { enabled: false, count: 300, reactTo: 'treble', color: '#ffffff', size: 0.05 },
+  heroShape: { ...DEFAULT_HERO_SHAPE },
+  shapeTimeline: [],
   tracks: [],
 })
 

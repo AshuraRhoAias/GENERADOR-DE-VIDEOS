@@ -1,12 +1,14 @@
 import { Suspense, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { Upload, Music } from 'lucide-react'
 import * as THREE from 'three'
-import { useProjectStore } from '@/store/projectStore'
+import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
 import { audioAnalyzer } from '@/lib/audioAnalyzer'
 import { ParticleSystem } from './ParticleSystem'
+import { HeroShape } from './HeroShape'
 import { LyricsOverlay } from './LyricsLayer'
 
 function ReactiveAmbientLight() {
@@ -58,8 +60,16 @@ function CameraShake() {
 
 function Scene() {
   const { openProject } = useProjectStore()
+  const currentTime = useEditorStore((s) => s.currentTime)
   const bg = openProject?.background
   const bgColor = bg?.type === 'color' ? (bg.color ?? '#0a0a0f') : '#0a0a0f'
+
+  const activeBlock = openProject?.shapeTimeline?.find(
+    (b) => currentTime >= b.start && currentTime < b.end
+  )
+  const heroShape = activeBlock
+    ? { enabled: true, ...activeBlock }
+    : (openProject?.heroShape ?? DEFAULT_HERO_SHAPE)
 
   return (
     <>
@@ -72,9 +82,25 @@ function Scene() {
         <ParticleSystem config={openProject.particles} />
       )}
 
+      {heroShape.enabled && <HeroShape config={heroShape} />}
+
       <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
-      <OrbitControls makeDefault enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.2} />
+      <OrbitControls
+        makeDefault
+        enablePan={false}
+        enableZoom
+        minDistance={3}
+        maxDistance={14}
+        autoRotate
+        autoRotateSpeed={0.2}
+      />
       <CameraShake />
+
+      {heroShape.enabled && (
+        <EffectComposer>
+          <Bloom luminanceThreshold={0.4} luminanceSmoothing={0.6} intensity={1.1} mipmapBlur radius={0.6} />
+        </EffectComposer>
+      )}
     </>
   )
 }
@@ -111,7 +137,7 @@ export function Viewport() {
 
   return (
     <div
-      className="relative flex-1 bg-[#0a0a0f] overflow-hidden"
+      className="relative flex-1 bg-surface-0 overflow-hidden"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
@@ -119,7 +145,7 @@ export function Viewport() {
         <div className="relative w-full max-w-4xl" style={{ aspectRatio: '16/9' }}>
           <div className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10 shadow-2xl">
             <Canvas
-              camera={{ position: [0, 0, 5], fov: 60 }}
+              camera={{ position: [0, 0, 7], fov: 55 }}
               gl={{ antialias: true, alpha: false }}
               dpr={[1, 2]}
             >

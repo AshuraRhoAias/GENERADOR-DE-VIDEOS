@@ -13,6 +13,7 @@ interface EditorStore {
   showTemplateGallery: boolean
   leftPanelTab: 'layers' | 'lyrics' | 'assets'
   rightPanelTab: 'properties' | 'audio' | 'effects'
+  selectedShapeBlockId: string | null
 
   setPlaying: (v: boolean) => void
   setCurrentTime: (t: number) => void
@@ -25,6 +26,7 @@ interface EditorStore {
   setShowTemplateGallery: (v: boolean) => void
   setLeftPanelTab: (t: EditorStore['leftPanelTab']) => void
   setRightPanelTab: (t: EditorStore['rightPanelTab']) => void
+  setSelectedShapeBlockId: (id: string | null) => void
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -39,6 +41,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
   showTemplateGallery: false,
   leftPanelTab: 'layers',
   rightPanelTab: 'properties',
+  selectedShapeBlockId: null,
 
   setPlaying: (v) => set({ isPlaying: v }),
   setCurrentTime: (t) => set({ currentTime: t }),
@@ -51,4 +54,5 @@ export const useEditorStore = create<EditorStore>((set) => ({
   setShowTemplateGallery: (v) => set({ showTemplateGallery: v }),
   setLeftPanelTab: (t) => set({ leftPanelTab: t }),
   setRightPanelTab: (t) => set({ rightPanelTab: t }),
+  setSelectedShapeBlockId: (id) => set({ selectedShapeBlockId: id }),
 }))

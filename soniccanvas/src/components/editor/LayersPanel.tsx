@@ -21,7 +21,7 @@ export function LayersPanel() {
   const { leftPanelTab, setLeftPanelTab } = useEditorStore()
 
   return (
-    <div className="flex flex-col h-full bg-[#111118] border-r border-white/8">
+    <div className="flex flex-col h-full bg-surface-2 border-r border-white/8">
       {/* Tabs */}
       <div className="flex border-b border-white/8 shrink-0">
         {tabs.map((t) => (
