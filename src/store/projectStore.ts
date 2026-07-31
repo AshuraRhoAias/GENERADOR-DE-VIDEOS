@@ -1,6 +1,19 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ProjectMeta, ProjectData, HeroShapeConfig } from '@/types/project'
+import type { ProjectMeta, ProjectData, HeroShapeConfig, Spectrum3DConfig } from '@/types/project'
+
+export const DEFAULT_SPECTRUM3D: Spectrum3DConfig = {
+  enabled: false,
+  bars: 16,
+  colorA: '#7c3aed',
+  colorB: '#fbbf24',
+  reactTo: 'bass',
+  motionEffect: 'bounce',
+  scale: 1.0,
+  posX: 0,
+  posY: -1.5,
+  glow: true,
+}
 
 export const DEFAULT_HERO_SHAPE: HeroShapeConfig = {
   enabled: false,
@@ -38,6 +51,7 @@ const defaultProject = (id: string, title: string): ProjectData => ({
   particles: { enabled: false, count: 300, reactTo: 'treble', color: '#ffffff', size: 0.05 },
   heroShape: { ...DEFAULT_HERO_SHAPE },
   shapeTimeline: [],
+  spectrum3d: { ...DEFAULT_SPECTRUM3D },
   tracks: [],
 })
 
