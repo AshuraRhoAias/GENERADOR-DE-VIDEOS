@@ -10,6 +10,8 @@ import { audioAnalyzer } from '@/lib/audioAnalyzer'
 import { ParticleSystem } from './ParticleSystem'
 import { HeroShape } from './HeroShape'
 import { LyricsOverlay } from './LyricsLayer'
+import { Spectrum3DShape } from './Spectrum3DShape'
+import { DEFAULT_SPECTRUM3D } from '@/store/projectStore'
 
 function ReactiveAmbientLight() {
   const { audioReactive } = useEditorStore()
@@ -83,6 +85,8 @@ function Scene() {
       )}
 
       {heroShape.enabled && <HeroShape config={heroShape} />}
+
+      <Spectrum3DShape config={openProject?.spectrum3d ?? DEFAULT_SPECTRUM3D} />
 
       <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
       <OrbitControls

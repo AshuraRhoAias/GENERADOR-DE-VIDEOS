@@ -36,10 +36,20 @@ export function useAudioReactive() {
   // RAF loop for reactive data + time sync
   useEffect(() => {
     const tick = () => {
-      if (useEditorStore.getState().isPlaying) {
+      const store = useEditorStore.getState()
+      if (store.isPlaying) {
         const t = audioAnalyzer.getCurrentTime()
-        setCurrentTime(t)
-        updateReactive(audioAnalyzer.getFrequencyBands())
+        const dur = store.duration
+        if (dur > 0 && t >= dur) {
+          // Song ended — stop playback and clamp to end
+          audioAnalyzer.stop()
+          store.setPlaying(false)
+          setCurrentTime(dur)
+          updateReactive({ bass: 0, mid: 0, treble: 0, kick: false, beat: false })
+        } else {
+          setCurrentTime(t)
+          updateReactive(audioAnalyzer.getFrequencyBands())
+        }
       }
       rafRef.current = requestAnimationFrame(tick)
     }

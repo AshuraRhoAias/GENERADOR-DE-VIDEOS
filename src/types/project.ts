@@ -77,6 +77,19 @@ export interface ShapeBlock {
   reactTo: HeroShapeConfig['reactTo']
 }
 
+export interface Spectrum3DConfig {
+  enabled: boolean
+  bars: number
+  colorA: string
+  colorB: string
+  reactTo: 'bass' | 'mid' | 'treble'
+  motionEffect: 'bounce' | 'wave' | 'pulse' | 'spiral'
+  scale: number
+  posX: number
+  posY: number
+  glow: boolean
+}
+
 export interface Track {
   id: string
   name: string
@@ -112,5 +125,6 @@ export interface ProjectData {
   particles: ParticleConfig
   heroShape: HeroShapeConfig
   shapeTimeline: ShapeBlock[]
+  spectrum3d: Spectrum3DConfig
   tracks: Track[]
 }
