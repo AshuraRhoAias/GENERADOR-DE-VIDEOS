@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useRef } from 'react'
+import { Suspense, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Glitch, Vignette } from '@react-three/postprocessing'
@@ -119,46 +119,49 @@ function Scene() {
   )
 }
 
-// ——— Media asset overlay (HTML layer) ———
+// ——— Media asset overlay (HTML layer, rendered in a separate sibling div) ———
 function MediaOverlayItem({ asset }: { asset: MediaAsset }) {
   const { audioReactive } = useEditorStore()
-  const videoRef = useRef<HTMLVideoElement>(null)
 
   const band = asset.audioReactive?.band ?? 'bass'
   const reactVal = audioReactive[band]
   const scaleBoost = asset.audioReactive?.property === 'scale'
-    ? 1 + reactVal * asset.audioReactive.amount
+    ? 1 + reactVal * (asset.audioReactive?.amount ?? 0)
     : 1
-  const opacityBoost = asset.audioReactive?.property === 'opacity'
+  const finalOpacity = asset.audioReactive?.property === 'opacity'
     ? Math.min(1, asset.opacity + reactVal * (asset.audioReactive?.amount ?? 0))
     : asset.opacity
 
-  const style: React.CSSProperties = {
+  const wrapStyle: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
     top: '50%',
     width: `${asset.width}%`,
     transform: `translate(-50%, -50%) translate(${asset.x}%, ${asset.y}%) rotate(${asset.rotation}deg) scale(${scaleBoost})`,
-    opacity: opacityBoost,
+    opacity: finalOpacity,
     mixBlendMode: asset.blendMode as React.CSSProperties['mixBlendMode'],
-    zIndex: asset.zIndex + 10,
-    pointerEvents: 'none',
+    zIndex: asset.zIndex,
+  }
+
+  const mediaStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    height: 'auto',
     objectFit: asset.fit,
+    pointerEvents: 'none',
   }
 
   if (asset.type === 'image') {
-    return <img src={asset.objectUrl} style={style} alt="" />
+    return (
+      <div style={wrapStyle}>
+        <img src={asset.objectUrl} style={mediaStyle} alt="" />
+      </div>
+    )
   }
   return (
-    <video
-      ref={videoRef}
-      src={asset.objectUrl}
-      style={style}
-      autoPlay
-      loop={asset.loop}
-      muted={asset.muted}
-      playsInline
-    />
+    <div style={wrapStyle}>
+      <video src={asset.objectUrl} style={mediaStyle} autoPlay loop={asset.loop} muted={asset.muted} playsInline />
+    </div>
   )
 }
 
@@ -212,6 +215,8 @@ export function Viewport() {
     >
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div className="relative w-full max-w-4xl" style={{ aspectRatio: '16/9' }}>
+
+          {/* Layer 1: 3D canvas */}
           <div
             className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10 shadow-2xl"
             style={{ filter: cssFilter }}
@@ -222,7 +227,7 @@ export function Viewport() {
               </Suspense>
             </Canvas>
 
-            {/* Background video */}
+            {/* Background video (inside canvas layer so color grade filter applies) */}
             {openProject?.background?.type === 'video' && openProject.background.url && (
               <video
                 src={openProject.background.url}
@@ -231,17 +236,21 @@ export function Viewport() {
                 autoPlay loop muted playsInline
               />
             )}
+          </div>
 
-            {/* Media asset overlays */}
+          {/* Layer 2: Media asset overlays — separate div so R3F doesn't block them */}
+          <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
             {mediaAssets.map((asset) => (
               <MediaOverlayItem key={asset.id} asset={asset} />
             ))}
-
-            {/* Lyrics overlay */}
-            {openProject?.lyrics && openProject.lyrics.length > 0 && (
-              <LyricsOverlay lines={openProject.lyrics} style={openProject.lyricStyle} />
-            )}
           </div>
+
+          {/* Layer 3: Lyrics */}
+          {openProject?.lyrics && openProject.lyrics.length > 0 && (
+            <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none" style={{ zIndex: 3 }}>
+              <LyricsOverlay lines={openProject.lyrics} style={openProject.lyricStyle} />
+            </div>
+          )}
         </div>
       </div>
 
