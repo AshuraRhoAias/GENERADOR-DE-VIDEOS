@@ -1,10 +1,11 @@
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
+import { EffectComposer, Bloom, Glitch, Vignette } from '@react-three/postprocessing'
+import { BlendFunction, GlitchMode } from 'postprocessing'
 import { Upload, Music } from 'lucide-react'
 import * as THREE from 'three'
-import { useProjectStore, DEFAULT_HERO_SHAPE } from '@/store/projectStore'
+import { useProjectStore, DEFAULT_HERO_SHAPE, DEFAULT_POST_PROCESSING } from '@/store/projectStore'
 import { useEditorStore } from '@/store/editorStore'
 import { audioAnalyzer } from '@/lib/audioAnalyzer'
 import { ParticleSystem } from './ParticleSystem'
@@ -12,22 +13,15 @@ import { HeroShape } from './HeroShape'
 import { LyricsOverlay } from './LyricsLayer'
 import { Spectrum3DShape } from './Spectrum3DShape'
 import { DEFAULT_SPECTRUM3D } from '@/store/projectStore'
+import type { MediaAsset, PostProcessingConfig } from '@/types/project'
 
 function ReactiveAmbientLight() {
   const { audioReactive } = useEditorStore()
   return (
     <>
       <ambientLight intensity={0.3 + audioReactive.bass * 0.4} />
-      <pointLight
-        position={[0, 2, 3]}
-        intensity={0.6 + audioReactive.mid * 1.5}
-        color="#7c3aed"
-      />
-      <pointLight
-        position={[-3, -2, 2]}
-        intensity={0.3 + audioReactive.treble * 0.8}
-        color="#3b82f6"
-      />
+      <pointLight position={[0, 2, 3]} intensity={0.6 + audioReactive.mid * 1.5} color="#7c3aed" />
+      <pointLight position={[-3, -2, 2]} intensity={0.3 + audioReactive.treble * 0.8} color="#3b82f6" />
     </>
   )
 }
@@ -35,18 +29,15 @@ function ReactiveAmbientLight() {
 function ReactiveBackground({ color }: { color: string }) {
   const { audioReactive } = useEditorStore()
   const base = new THREE.Color(color)
-
   useFrame(({ scene }) => {
     const boosted = base.clone().multiplyScalar(1 + audioReactive.bass * 0.15)
     scene.background = boosted
   })
-
   return null
 }
 
 function CameraShake() {
   const { audioReactive } = useEditorStore()
-
   useFrame(({ camera }) => {
     if (audioReactive.kick) {
       camera.position.x += (Math.random() - 0.5) * 0.04
@@ -56,8 +47,43 @@ function CameraShake() {
       camera.position.y *= 0.92
     }
   })
-
   return null
+}
+
+function PostProcessing({ pp }: { pp: PostProcessingConfig }) {
+  const { audioReactive } = useEditorStore()
+  const glitchActive = pp.glitch.enabled && (pp.glitch.onKick ? audioReactive.kick : true)
+
+  return (
+    <EffectComposer>
+      {pp.bloom.enabled ? (
+        <Bloom
+          luminanceThreshold={pp.bloom.threshold}
+          luminanceSmoothing={pp.bloom.radius}
+          intensity={pp.bloom.intensity + audioReactive.bass * 0.5}
+          mipmapBlur
+          radius={pp.bloom.radius}
+        />
+      ) : <></>}
+      {pp.glitch.enabled ? (
+        <Glitch
+          active={glitchActive}
+          mode={GlitchMode.SPORADIC}
+          delay={new THREE.Vector2(0.5, 1.0)}
+          duration={new THREE.Vector2(0.1, 0.3)}
+          strength={new THREE.Vector2(pp.glitch.intensity * 0.3, pp.glitch.intensity * 0.7)}
+          blendFunction={BlendFunction.NORMAL}
+        />
+      ) : <></>}
+      {pp.colorGrade.enabled && pp.colorGrade.vignette > 0 ? (
+        <Vignette
+          offset={0.5}
+          darkness={pp.colorGrade.vignette}
+          blendFunction={BlendFunction.NORMAL}
+        />
+      ) : <></>}
+    </EffectComposer>
+  )
 }
 
 function Scene() {
@@ -65,6 +91,7 @@ function Scene() {
   const currentTime = useEditorStore((s) => s.currentTime)
   const bg = openProject?.background
   const bgColor = bg?.type === 'color' ? (bg.color ?? '#0a0a0f') : '#0a0a0f'
+  const pp = openProject?.postProcessing ?? DEFAULT_POST_PROCESSING
 
   const activeBlock = openProject?.shapeTimeline?.find(
     (b) => currentTime >= b.start && currentTime < b.end
@@ -80,44 +107,73 @@ function Scene() {
       <directionalLight position={[5, 5, 5]} intensity={0.8} />
       <Stars radius={80} depth={50} count={1500} factor={3} fade speed={0.3} />
 
-      {openProject?.particles?.enabled && (
-        <ParticleSystem config={openProject.particles} />
-      )}
-
+      {openProject?.particles?.enabled && <ParticleSystem config={openProject.particles} />}
       {heroShape.enabled && <HeroShape config={heroShape} />}
-
       <Spectrum3DShape config={openProject?.spectrum3d ?? DEFAULT_SPECTRUM3D} />
 
       <hemisphereLight args={['#1a0a3a', '#000000', 0.6]} />
-      <OrbitControls
-        makeDefault
-        enablePan={false}
-        enableZoom
-        minDistance={3}
-        maxDistance={14}
-        autoRotate
-        autoRotateSpeed={0.2}
-      />
+      <OrbitControls makeDefault enablePan={false} enableZoom minDistance={3} maxDistance={14} autoRotate autoRotateSpeed={0.2} />
       <CameraShake />
-
-      {heroShape.enabled && (
-        <EffectComposer>
-          <Bloom luminanceThreshold={0.4} luminanceSmoothing={0.6} intensity={1.1} mipmapBlur radius={0.6} />
-        </EffectComposer>
-      )}
+      <PostProcessing pp={pp} />
     </>
+  )
+}
+
+// ——— Media asset overlay (HTML layer) ———
+function MediaOverlayItem({ asset }: { asset: MediaAsset }) {
+  const { audioReactive } = useEditorStore()
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const band = asset.audioReactive?.band ?? 'bass'
+  const reactVal = audioReactive[band]
+  const scaleBoost = asset.audioReactive?.property === 'scale'
+    ? 1 + reactVal * asset.audioReactive.amount
+    : 1
+  const opacityBoost = asset.audioReactive?.property === 'opacity'
+    ? Math.min(1, asset.opacity + reactVal * (asset.audioReactive?.amount ?? 0))
+    : asset.opacity
+
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    width: `${asset.width}%`,
+    transform: `translate(-50%, -50%) translate(${asset.x}%, ${asset.y}%) rotate(${asset.rotation}deg) scale(${scaleBoost})`,
+    opacity: opacityBoost,
+    mixBlendMode: asset.blendMode as React.CSSProperties['mixBlendMode'],
+    zIndex: asset.zIndex + 10,
+    pointerEvents: 'none',
+    objectFit: asset.fit,
+  }
+
+  if (asset.type === 'image') {
+    return <img src={asset.objectUrl} style={style} alt="" />
+  }
+  return (
+    <video
+      ref={videoRef}
+      src={asset.objectUrl}
+      style={style}
+      autoPlay
+      loop={asset.loop}
+      muted={asset.muted}
+      playsInline
+    />
   )
 }
 
 export function Viewport() {
   const { openProject, updateOpenProject } = useProjectStore()
   const { setAudioFile, setDuration } = useEditorStore()
+  const pp = openProject?.postProcessing ?? DEFAULT_POST_PROCESSING
+  const cg = pp.colorGrade
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     const files = Array.from(e.dataTransfer.files)
     const audio = files.find((f) => f.type.startsWith('audio/'))
     const image = files.find((f) => f.type.startsWith('image/'))
+    const video = files.find((f) => f.type.startsWith('video/'))
 
     if (audio) {
       setAudioFile(audio)
@@ -133,11 +189,20 @@ export function Viewport() {
       const url = URL.createObjectURL(image)
       updateOpenProject({ background: { ...openProject.background, type: 'image', url } })
     }
+    if (video && openProject) {
+      const url = URL.createObjectURL(video)
+      updateOpenProject({ background: { ...openProject.background, type: 'video', url } })
+    }
   }, [openProject, updateOpenProject, setAudioFile, setDuration])
 
   const handleDragOver = (e: React.DragEvent) => e.preventDefault()
-
   const hasAudio = !!openProject?.audio?.localPath
+  const mediaAssets = openProject?.mediaAssets ?? []
+
+  // CSS filter for color grade
+  const cssFilter = cg.enabled
+    ? `brightness(${cg.brightness}) contrast(${cg.contrast}) saturate(${cg.saturation})`
+    : undefined
 
   return (
     <div
@@ -147,23 +212,34 @@ export function Viewport() {
     >
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div className="relative w-full max-w-4xl" style={{ aspectRatio: '16/9' }}>
-          <div className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10 shadow-2xl">
-            <Canvas
-              camera={{ position: [0, 0, 7], fov: 55 }}
-              gl={{ antialias: true, alpha: false }}
-              dpr={[1, 2]}
-            >
+          <div
+            className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10 shadow-2xl"
+            style={{ filter: cssFilter }}
+          >
+            <Canvas camera={{ position: [0, 0, 7], fov: 55 }} gl={{ antialias: true, alpha: false }} dpr={[1, 2]}>
               <Suspense fallback={null}>
                 <Scene />
               </Suspense>
             </Canvas>
 
-            {/* Lyrics overlay (HTML over canvas) */}
-            {openProject?.lyrics && openProject.lyrics.length > 0 && (
-              <LyricsOverlay
-                lines={openProject.lyrics}
-                style={openProject.lyricStyle}
+            {/* Background video */}
+            {openProject?.background?.type === 'video' && openProject.background.url && (
+              <video
+                src={openProject.background.url}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                style={{ opacity: openProject.background.opacity, zIndex: 1 }}
+                autoPlay loop muted playsInline
               />
+            )}
+
+            {/* Media asset overlays */}
+            {mediaAssets.map((asset) => (
+              <MediaOverlayItem key={asset.id} asset={asset} />
+            ))}
+
+            {/* Lyrics overlay */}
+            {openProject?.lyrics && openProject.lyrics.length > 0 && (
+              <LyricsOverlay lines={openProject.lyrics} style={openProject.lyricStyle} />
             )}
           </div>
         </div>
@@ -184,7 +260,7 @@ export function Viewport() {
               <div className="w-10 h-10 rounded-xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center">
                 <Upload size={18} className="text-blue-400" />
               </div>
-              <p className="text-xs text-white/40">O una <span className="text-white/70">imagen</span> de fondo</p>
+              <p className="text-xs text-white/40">O imagen / <span className="text-white/70">video</span> de fondo</p>
             </div>
           </div>
         </div>

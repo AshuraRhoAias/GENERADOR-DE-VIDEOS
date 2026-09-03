@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ProjectMeta, ProjectData, HeroShapeConfig, Spectrum3DConfig } from '@/types/project'
+import type { ProjectMeta, ProjectData, HeroShapeConfig, Spectrum3DConfig, PostProcessingConfig } from '@/types/project'
 
 export const DEFAULT_SPECTRUM3D: Spectrum3DConfig = {
   enabled: false,
@@ -25,6 +25,12 @@ export const DEFAULT_HERO_SHAPE: HeroShapeConfig = {
   knotP: 2,
   knotQ: 5,
   reactTo: 'bass',
+}
+
+export const DEFAULT_POST_PROCESSING: PostProcessingConfig = {
+  bloom: { enabled: true, intensity: 1.0, radius: 0.6, threshold: 0.4 },
+  glitch: { enabled: false, frequency: 0.1, intensity: 0.3, onKick: true },
+  colorGrade: { enabled: false, saturation: 1.0, contrast: 1.0, brightness: 1.0, vignette: 0.0 },
 }
 
 const defaultProject = (id: string, title: string): ProjectData => ({
@@ -52,6 +58,8 @@ const defaultProject = (id: string, title: string): ProjectData => ({
   heroShape: { ...DEFAULT_HERO_SHAPE },
   shapeTimeline: [],
   spectrum3d: { ...DEFAULT_SPECTRUM3D },
+  postProcessing: { ...DEFAULT_POST_PROCESSING, bloom: { ...DEFAULT_POST_PROCESSING.bloom }, glitch: { ...DEFAULT_POST_PROCESSING.glitch }, colorGrade: { ...DEFAULT_POST_PROCESSING.colorGrade } },
+  mediaAssets: [],
   tracks: [],
 })
 

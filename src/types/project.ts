@@ -90,6 +90,53 @@ export interface Spectrum3DConfig {
   glow: boolean
 }
 
+export interface PostProcessingConfig {
+  bloom: {
+    enabled: boolean
+    intensity: number   // 0–3
+    radius: number      // 0–1
+    threshold: number   // 0–1
+  }
+  glitch: {
+    enabled: boolean
+    frequency: number   // 0–1 (how often)
+    intensity: number   // 0–1
+    onKick: boolean     // only fire on kick
+  }
+  colorGrade: {
+    enabled: boolean
+    saturation: number  // 0–3 (1 = normal)
+    contrast: number    // 0–3 (1 = normal)
+    brightness: number  // 0–2 (1 = normal)
+    vignette: number    // 0–1
+  }
+}
+
+export interface MediaAsset {
+  id: string
+  name: string
+  type: 'image' | 'video'
+  objectUrl: string   // from URL.createObjectURL — runtime only
+  /** horizontal offset in % of canvas width, 0 = center */
+  x: number
+  /** vertical offset in % of canvas height, 0 = center */
+  y: number
+  /** width as % of canvas width */
+  width: number
+  rotation: number    // degrees
+  opacity: number     // 0–1
+  blendMode: string   // CSS mix-blend-mode
+  zIndex: number
+  fit: 'contain' | 'cover' | 'fill'
+  loop: boolean
+  muted: boolean
+  audioReactive: {
+    band: 'bass' | 'mid' | 'treble'
+    property: 'scale' | 'opacity'
+    amount: number
+  } | null
+}
+
 export interface Track {
   id: string
   name: string
@@ -126,5 +173,7 @@ export interface ProjectData {
   heroShape: HeroShapeConfig
   shapeTimeline: ShapeBlock[]
   spectrum3d: Spectrum3DConfig
+  postProcessing: PostProcessingConfig
+  mediaAssets: MediaAsset[]
   tracks: Track[]
 }
