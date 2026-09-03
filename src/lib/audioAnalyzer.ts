@@ -49,6 +49,16 @@ export class AudioAnalyzer {
     this.pauseOffset = 0
   }
 
+  seek(t: number) {
+    this.pauseOffset = Math.max(0, t)
+    if (this.source) {
+      // Currently playing — restart from new position
+      try { this.source.stop() } catch {}
+      this.source = null
+      this.play(this.pauseOffset)
+    }
+  }
+
   getCurrentTime() {
     if (!this.context || !this.source) return this.pauseOffset
     return this.context.currentTime - this.startTime

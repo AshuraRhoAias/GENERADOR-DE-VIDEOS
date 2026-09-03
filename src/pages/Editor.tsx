@@ -8,7 +8,9 @@ import { Viewport } from '@/components/canvas/Viewport'
 import { ExportModal } from '@/components/editor/ExportModal'
 import { TemplateGallery } from '@/components/editor/TemplateGallery'
 import { useProjectStore } from '@/store/projectStore'
+import { useEditorStore } from '@/store/editorStore'
 import { useAudioReactive } from '@/hooks/useAudioReactive'
+import { audioAnalyzer } from '@/lib/audioAnalyzer'
 
 export function Editor() {
   const { id } = useParams<{ id: string }>()
@@ -24,11 +26,62 @@ export function Editor() {
   }, [id])
 
   useEffect(() => {
-    // Save on Ctrl+S
     const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName
+      const editable = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
+
+      // Ctrl+S — save
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()
         useProjectStore.getState().saveProject()
+        return
+      }
+
+      if (editable) return
+
+      // Space — play / pause
+      if (e.code === 'Space') {
+        e.preventDefault()
+        const store = useEditorStore.getState()
+        if (!store.duration) return
+        store.setPlaying(!store.isPlaying)
+        return
+      }
+
+      // K — play / pause (alternate)
+      if (e.key === 'k' || e.key === 'K') {
+        const store = useEditorStore.getState()
+        if (!store.duration) return
+        store.setPlaying(!store.isPlaying)
+        return
+      }
+
+      // J — rewind 5s
+      if (e.key === 'j' || e.key === 'J') {
+        const store = useEditorStore.getState()
+        const t = Math.max(0, store.currentTime - 5)
+        store.setCurrentTime(t)
+        audioAnalyzer.seek(t)
+        return
+      }
+
+      // L — forward 5s
+      if (e.key === 'l' || e.key === 'L') {
+        const store = useEditorStore.getState()
+        const t = Math.min(store.duration, store.currentTime + 5)
+        store.setCurrentTime(t)
+        audioAnalyzer.seek(t)
+        return
+      }
+
+      // Home — go to start
+      if (e.key === 'Home') {
+        e.preventDefault()
+        const store = useEditorStore.getState()
+        audioAnalyzer.stop()
+        store.setPlaying(false)
+        store.setCurrentTime(0)
+        return
       }
     }
     window.addEventListener('keydown', handler)

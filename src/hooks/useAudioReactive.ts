@@ -4,7 +4,7 @@ import { useEditorStore } from '@/store/editorStore'
 import { useProjectStore } from '@/store/projectStore'
 
 export function useAudioReactive() {
-  const { isPlaying, currentTime, setCurrentTime, setDuration, updateReactive, setAudioBuffer } = useEditorStore()
+  const { isPlaying, setCurrentTime, setDuration, updateReactive, setAudioBuffer } = useEditorStore()
   const { openProject } = useProjectStore()
   const rafRef = useRef<number>(0)
   const loadedFile = useRef<string | null>(null)
@@ -24,10 +24,11 @@ export function useAudioReactive() {
     })
   }, [openProject?.audio?.localPath])
 
-  // Play / pause
+  // Play / pause — read currentTime fresh from store to avoid stale closure
   useEffect(() => {
     if (isPlaying) {
-      audioAnalyzer.play(currentTime)
+      const t = useEditorStore.getState().currentTime
+      audioAnalyzer.play(t)
     } else {
       audioAnalyzer.pause()
     }
@@ -41,7 +42,6 @@ export function useAudioReactive() {
         const t = audioAnalyzer.getCurrentTime()
         const dur = store.duration
         if (dur > 0 && t >= dur) {
-          // Song ended — stop playback and clamp to end
           audioAnalyzer.stop()
           store.setPlaying(false)
           setCurrentTime(dur)

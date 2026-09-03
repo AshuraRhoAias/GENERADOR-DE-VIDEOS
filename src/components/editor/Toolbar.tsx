@@ -1,16 +1,28 @@
 import { useNavigate } from 'react-router-dom'
 import {
-  ChevronLeft, Play, Pause, Square, Download,
+  ChevronLeft, Play, Pause, Square, SkipBack, Download,
   Save, Undo, Redo, Music2, Sliders, LayoutTemplate, Zap
 } from 'lucide-react'
 import { useEditorStore } from '@/store/editorStore'
 import { useProjectStore } from '@/store/projectStore'
+import { audioAnalyzer } from '@/lib/audioAnalyzer'
 import { Button } from '@/components/ui/Button'
 
 export function Toolbar() {
   const navigate = useNavigate()
-  const { isPlaying, setPlaying, setShowExportModal, setShowTemplateGallery, audioReactive, duration, currentTime } = useEditorStore()
+  const { isPlaying, setPlaying, setCurrentTime, setShowExportModal, setShowTemplateGallery, audioReactive, duration, currentTime } = useEditorStore()
   const { openProject, saveProject, isDirty } = useProjectStore()
+
+  const handleStop = () => {
+    audioAnalyzer.stop()
+    setPlaying(false)
+    setCurrentTime(0)
+  }
+
+  const handlePlayPause = () => {
+    if (!useEditorStore.getState().duration) return
+    setPlaying(!isPlaying)
+  }
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
@@ -48,17 +60,26 @@ export function Toolbar() {
       </div>
 
       {/* Playback */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <button
-          onClick={() => setPlaying(false)}
+          onClick={handleStop}
           className="p-1.5 rounded-lg hover:bg-white/5 text-white/25 hover:text-white/60 transition-colors"
-          title="Detener"
+          title="Detener y volver al inicio"
         >
           <Square size={12} />
         </button>
         <button
-          onClick={() => setPlaying(!isPlaying)}
-          className="w-8 h-7 rounded-lg bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition-all shadow-[0_0_12px_rgba(124,58,237,0.35)] hover:shadow-[0_0_16px_rgba(124,58,237,0.5)]"
+          onClick={() => { handleStop(); setCurrentTime(0) }}
+          className="p-1.5 rounded-lg hover:bg-white/5 text-white/25 hover:text-white/60 transition-colors"
+          title="Ir al inicio"
+        >
+          <SkipBack size={12} />
+        </button>
+        <button
+          onClick={handlePlayPause}
+          disabled={!duration}
+          className="w-8 h-7 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all shadow-[0_0_12px_rgba(124,58,237,0.35)] hover:shadow-[0_0_16px_rgba(124,58,237,0.5)]"
+          title={isPlaying ? 'Pausar (Space)' : 'Reproducir (Space)'}
         >
           {isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
         </button>

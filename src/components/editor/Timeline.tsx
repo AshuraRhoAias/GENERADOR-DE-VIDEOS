@@ -28,7 +28,7 @@ type DragMode =
   | { kind: 'resize-right'; blockId: string; origStart: number }
 
 export function Timeline() {
-  const { isPlaying, currentTime, duration, setCurrentTime, audioReactive, selectedShapeBlockId, setSelectedShapeBlockId } = useEditorStore()
+  const { currentTime, duration, setCurrentTime, audioReactive, selectedShapeBlockId, setSelectedShapeBlockId } = useEditorStore()
   const { openProject, updateOpenProject } = useProjectStore()
   const trackRef = useRef<HTMLDivElement>(null)
   const [dragMode, setDragMode] = useState<DragMode | null>(null)
@@ -70,9 +70,7 @@ export function Timeline() {
     if (!duration) return
     const newTime = timeFromX(e.clientX)
     setCurrentTime(newTime)
-    if (isPlaying) {
-      audioAnalyzer.play(newTime)
-    }
+    audioAnalyzer.seek(newTime)
   }
 
   const handleShapesPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
